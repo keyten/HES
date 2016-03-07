@@ -66,8 +66,7 @@
 			 && config.hidePosts.authors.length > 0){
 			$('.post').each(function(){
 				var author = trim( $('.post-author__link', this).text() );
-				author = author.substr(1);
-				console.log(author);
+				author = author.substr(1); // удаляем @ из ника
 				if( config.hidePosts.authors.indexOf( author ) > -1 ){
 					if( config.hidePosts.mode == 'hideContent')
 						$('.hubs, .content', this).hide();
@@ -87,7 +86,7 @@
 
 				// парсим код
 				var code = this.src.replace(/^https:\/\/tex\.s2cms\.ru\/svg/, '');
-				code = code.substr(1);
+				code = code.substr(1); // удаляем / в начале
 				code = unescape(code);
 
 				// создаём объект для TeX-формулы
