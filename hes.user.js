@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name        HabraScript
+// @name        HES
 // @namespace   http://github.com/keyten
-// @description UserScript for hh & gt & mm
+// @description Habrahabr Enhancement Suite
 // @include     http://geektimes.ru/*
 // @include     http://habrahabr.ru/*
 // @include     http://megamozg.ru/*
@@ -147,7 +147,7 @@
 		{
 			var $tab = $('#settings_tab');
 			var $menu = $('<div class="menu"></div>');
-			$tab.append('<div class="title">UserScript</div>');
+			$tab.append('<div class="title">HES</div>');
 			$tab.append($menu);
 
 			var $he_button = $('<a href="javascript://"></a>');
