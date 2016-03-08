@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name        HES
+// @name        HabraScript
 // @namespace   http://github.com/keyten
-// @description Habrahabr Enhancement Suite
+// @description UserScript for hh & gt & mm
 // @include     http://geektimes.ru/*
 // @include     http://habrahabr.ru/*
 // @include     http://megamozg.ru/*
@@ -22,7 +22,7 @@
 
 // Настройки
 // Авторы, посты которых скрываем
-(function(window, undefined){
+(function(window, $, undefined){
 	var config = {
 		hidePosts: {
 			enabled: true,
@@ -32,13 +32,15 @@
 				'ivansychev',
 				'ragequit',
 				'SLY_G'
-		        ],
+		 ],
 			mode: 'hideContent'
 		},
 
 		mathjax: true,
 
-		nightMode: false
+		nightMode: false,
+
+		hideUserInfo: false // скрывать "плашки", появл. при наведении на ник пользователя
 	};
 
 	// подгружаем настройки из localStorage
@@ -66,7 +68,8 @@
 			 && config.hidePosts.authors.length > 0){
 			$('.post').each(function(){
 				var author = trim( $('.post-author__link', this).text() );
-				author = author.substr(1); // удаляем @ из ника
+				author = author.substr(1);
+				console.log(author);
 				if( config.hidePosts.authors.indexOf( author ) > -1 ){
 					if( config.hidePosts.mode == 'hideContent')
 						$('.hubs, .content', this).hide();
@@ -86,7 +89,7 @@
 
 				// парсим код
 				var code = this.src.replace(/^https:\/\/tex\.s2cms\.ru\/svg/, '');
-				code = code.substr(1); // удаляем / в начале
+				code = code.substr(1);
 				code = unescape(code);
 
 				// создаём объект для TeX-формулы
@@ -135,11 +138,16 @@
 			document.head.appendChild(s);
 		}
 
+        // скрываем плашки с именем-кармой-etc юзера
+        if(config.hideUserInfo){
+            $('*[rel=user-popover]').webuiPopover('destroy');
+        }
+
 		// добавляем менюшку с конфигом
 		{
 			var $tab = $('#settings_tab');
 			var $menu = $('<div class="menu"></div>');
-			$tab.append('<div class="title">HES</div>');
+			$tab.append('<div class="title">UserScript</div>');
 			$tab.append($menu);
 
 			var $he_button = $('<a href="javascript://"></a>');
@@ -212,10 +220,26 @@
 				localStorage.setItem('us_config', JSON.stringify(config));
 			});
 			$nm_button.appendTo($menu);
+
+            // Hide user info. Аббревиатуру не делать.
+            var $h_button = $('<a href="javascript://">Скрывать юзеринфо: ' + (config.hideUserInfo ? 'on' : 'off') + '</a>');
+			$h_button.click(function(){
+				if(config.hideUserInfo){
+					config.hideUserInfo = false;
+					$h_button.text('Скрывать юзеринфо: off');
+				}
+				else {
+					config.hideUserInfo = true;
+					$h_button.text('Скрывать юзеринфо: on');
+				}
+				localStorage.setItem('us_config', JSON.stringify(config));
+		    });
+			$h_button.appendTo($menu);
+
 		}
 	});
 
 	function trim(str){
 		return str.replace(/^\s*/, '').replace(/\s*$/, '');
 	}
-})(window);
+})(window, window.jQuery);
