@@ -1,10 +1,11 @@
-# HabraScript
+# Habrahabr Enhancement Suite
 Юзерскрипт для Хабрахабра / Гиктаймс / Мегамозга.
 
-![Скриншот](https://habrastorage.org/getpro/geektimes/conversation/b71/867/268/b7186726809fcb573d66083421713fee.png)
+![Скриншот](https://habrastorage.org/getpro/geektimes/post_images/8df/3a5/551/8df3a55512cc12a6038cfe8545ee7310.png)
 
 ### Текущие возможности:
  - Night Mode ( использован стиль от WaveCut ).
  - Превращение картинок в «натуральные» формулы (TeX, MathJax).
  - Скрытие постов от определённых авторов из списка ( редакторов Geektimes, etc ).
  - Частичное скрытие постов.
+ - Скрытие плашки с юзеринфо при наведении на ник пользователя.
