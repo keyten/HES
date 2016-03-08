@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        HES
 // @namespace   http://github.com/keyten
-// @description UserScript for hh & gt & mm
+// @description Habrahabr Enhancement Suite
 // @include     http://geektimes.ru/*
 // @include     http://habrahabr.ru/*
 // @include     http://megamozg.ru/*
