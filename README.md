@@ -4,7 +4,7 @@
 ![Скриншот](https://habrastorage.org/getpro/geektimes/post_images/8df/3a5/551/8df3a55512cc12a6038cfe8545ee7310.png)
 
 ### Текущие возможности:
- - Night Mode ( использован стиль от WaveCut ).
+ - Night Mode ( использован стиль от WaveCut и extempl ).
  - Превращение картинок в «натуральные» формулы (TeX, MathJax).
  - Скрытие постов от определённых авторов из списка ( редакторов Geektimes, etc ).
  - Частичное скрытие постов.
