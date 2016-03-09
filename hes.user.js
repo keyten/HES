@@ -18,6 +18,7 @@
 // @author      HabraCommunity
 // @version     1
 // @grant       none
+// @run-at      document-start
 // ==/UserScript==
 
 // Настройки
