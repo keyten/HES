@@ -131,7 +131,7 @@
 			var s = document.createElement('style');
 			s.id = 'us_nmstyle';
 			$.get('https://raw.githubusercontent.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css').then(function (data) {
-				s.textContent = nmstyle;
+				s.textContent = data;
 				document.head.appendChild(s);
 			});
 		}
