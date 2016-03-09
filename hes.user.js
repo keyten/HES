@@ -205,8 +205,10 @@
 					$nm_button.text('Night mode: on');
 					var s = document.createElement('style');
 					s.id = 'us_nmstyle';
-					s.textContent = nmstyle;
-					document.head.appendChild(s);
+					$.get('https://raw.githubusercontent.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css').then(function (data) {
+						s.textContent = data;
+						document.head.appendChild(s);
+					});
 				}
 				localStorage.setItem('us_config', JSON.stringify(config));
 			});
