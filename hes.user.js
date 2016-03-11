@@ -71,11 +71,18 @@
 	}
 
 	var setNightMode = function () {
+		var styles;
 		var s = document.createElement('style');
 		s.id = 'us_nmstyle';
+		document.head.appendChild(s);
+
+		if (styles = localStorage.getItem('us_nmstyle')) {
+			s.textContent = styles;
+		}
+
 		ajax('https://raw.githubusercontent.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
+			localStorage.setItem('us_nmstyle', data);
 			s.textContent = data;
-			document.head.appendChild(s);
 		});
 	}
 
