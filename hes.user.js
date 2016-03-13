@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     1
+// @version     1.1.0
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -53,10 +53,15 @@
 
 		nightMode: false,
 
-		hideUserInfo: false // скрывать "плашки", появл. при наведении на ник пользователя
+		hideUserInfo: false, // скрывать "плашки", появл. при наведении на ник пользователя
+
+		replaceLinks: true // замена ссылок в комментариях от пользователей с низкой кармой на кликабельные
 	};
 
 	// подгружаем настройки из localStorage
+	var updateLSConfig = function () {
+		return localStorage.setItem('us_config', JSON.stringify(config));
+	}
 	var citem;
 	if (citem = localStorage.getItem('us_config')) {
 		citem = JSON.parse(citem);
@@ -66,9 +71,7 @@
 			config[key] = citem[key];
 		}
 	}
-	else {
-		localStorage.setItem('us_config', JSON.stringify(config));
-	}
+	else updateLSConfig()
 
 	var setNightMode = function () {
 		var styles;
@@ -90,8 +93,61 @@
 		setNightMode()
 	}
 
+	// regExp: https://gist.github.com/dperini/729294
+	var link_reg = /((?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?)/gi
+	var template = '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>'
+
+	var replaceLinks = function ($comments) {
+		$comments.each(function (i, comment) {
+			var depth = 5 // максимальная глубина вложенности
+			var _seekAndReplace = function (node, depth) {
+				if (!--depth) return;
+				Array.prototype.forEach.call(node.childNodes, function (node) {
+					if (node.nodeType == 3) { // если текст - искать/заменять
+						var $node = $(node)
+						if (!$node.parent('a').length) { // если родитель не ссылка
+							if (link_reg.test(node.nodeValue)) {
+								$node.replaceWith(node.nodeValue.replace(link_reg, template))
+							}
+						}
+					} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
+						_seekAndReplace(node, depth)
+					}
+				})
+			}
+
+
+			_seekAndReplace(comment, depth)
+		})
+	}
+
+	var replaceAllLinks = function () {
+		$('head').append('<style id="unchecked_links">' +
+			'.html_format.message  a.unchecked_link, ' +
+			'.html_format.message  a.unchecked_link:visited { ' +
+			'  color: darkred; ' +
+			'}</style>')
+		replaceLinks($('.comment-item + .message'))
+	}
+	var replaceNewLinks = function () {
+		replaceLinks($('.comment-item.is_new + .message'))
+	}
+
 	window.addEventListener('load', function () {
 		var $ = window.jQuery;
+
+		$('#xpanel').children('.refresh').click(function () {
+			var $el = $(this)
+
+			var _emitEvent = function () {
+				if ($el.hasClass('loading')) {
+					return setTimeout(_emitEvent, 100)
+				}
+
+				$(document).trigger('comments.reloaded')
+			}
+			setTimeout(_emitEvent, 100)
+		})
 
 		$(function () {
 
@@ -160,6 +216,11 @@
 				$('*[rel=user-popover]').webuiPopover('destroy');
 			}
 
+			if (config.replaceLinks) {
+				replaceAllLinks()
+				$(document).on('comments.reloaded', replaceNewLinks)
+			}
+
 			// добавляем менюшку с конфигом
 			{
 				var $tab = $('#settings_tab');
@@ -189,7 +250,7 @@
 						config.hidePosts.mode = 'hideContent';
 						$he_button.text('Скрывать частично');
 					}
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$he_button.appendTo($menu);
 
@@ -199,57 +260,79 @@
 					if (!auth)
 						return;
 					config.hidePosts.authors = auth.replace(/\s/g, '').split(',');
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$ha_button.appendTo($menu);
 
-				var $mj_button = $('<a href="javascript://">MathJax: ' + (config.mathjax ? 'on' : 'off') + '</a>');
+				var $mj_button = $('<a href="javascript://">MathJax: <span>' + (config.mathjax ? 'on' : 'off') + '</span></a>');
 				$mj_button.click(function () {
+					var $state = $(this).children('span')
 					if (config.mathjax) {
 						config.mathjax = false;
-						$mj_button.text('MathJax: off');
+						$state.text('off')
 					}
 					else {
 						config.mathjax = true;
-						$mj_button.text('MathJax: on');
+						$state.text('on')
 					}
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$mj_button.appendTo($menu);
 
-				var $nm_button = $('<a href="javascript://">Night mode: ' + (config.nightMode ? 'on' : 'off') + '</a>');
+				var $nm_button = $('<a href="javascript://">Night mode: <span>' + (config.nightMode ? 'on' : 'off') + '</span></a>');
 				$nm_button.click(function () {
+					var $state = $(this).children('span')
 					if (config.nightMode) {
 						config.nightMode = false;
-						$nm_button.text('Night mode: off');
+						$state.text('off')
 						var s = document.getElementById('us_nmstyle');
 						if (s)
 							document.head.removeChild(s);
 					}
 					else {
 						config.nightMode = true;
-						$nm_button.text('Night mode: on');
+						$state.text('on')
 						setNightMode()
 					}
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$nm_button.appendTo($menu);
 
 				// Hide user info. Аббревиатуру не делать.
-				var $h_button = $('<a href="javascript://">Скрывать юзеринфо: ' + (config.hideUserInfo ? 'on' : 'off') + '</a>');
+				var $h_button = $('<a href="javascript://">Скрывать юзеринфо: <span>' + (config.hideUserInfo ? 'on' : 'off') + '</span></a>');
 				$h_button.click(function () {
+					var $state = $(this).children('span')
 					if (config.hideUserInfo) {
 						config.hideUserInfo = false;
-						$h_button.text('Скрывать юзеринфо: off');
+						$state.text('off')
 					}
 					else {
 						config.hideUserInfo = true;
-						$h_button.text('Скрывать юзеринфо: on');
+						$state.text('on')
 					}
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$h_button.appendTo($menu);
 
+
+				var $l_button = $('<a href="javascript://">Кликабельные ссылки: <span>' + (config.replaceLinks ? 'on' : 'off') + '</span></a>');
+				$l_button.click(function () {
+					var $state = $(this).children('span')
+					if (config.replaceLinks) {
+						config.replaceLinks = false
+						$state.text('off')
+						$('style#unchecked_links').remove()
+						$(document).off('comments.reloaded', replaceNewLinks)
+					}
+					else {
+						config.replaceLinks = true
+						$state.text('on')
+						replaceAllLinks()
+						$(document).on('comments.reloaded', replaceNewLinks)
+					}
+					updateLSConfig()
+				})
+				$l_button.appendTo($menu);
 			}
 		})
 	});
