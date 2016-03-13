@@ -46,9 +46,13 @@
 				'ragequit',
 				'SLY_G'
 			],
+			'hubs': [
+				'mvideo',
+				'icover',
+				'gearbest'
+			],
 			mode: 'hideContent'
 		},
-
 		mathjax: true,
 
 		nightMode: false,
@@ -162,7 +166,30 @@
 						if (config.hidePosts.mode == 'hideContent')
 							$('.hubs, .content', this).hide();
 						else
-							$(this).hide();
+							$(this).remove();
+					}
+				});
+			}
+
+			// скрываем посты из хабов
+			if (config.hidePosts.enabled
+				&& config.hidePosts.hubs
+				&& config.hidePosts.hubs.length > 0) {
+				$('.post').each(function() {
+					var pHubNames = $('.hub', this).map(getName).get();
+					var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
+										.map(getName).get();
+					var hubNames = pHubNames.concat(mpHubNames);
+					var banned = hubNames.filter(function(value){
+						return config.hidePosts.hubs.indexOf(value) > -1;
+					});
+					if(banned.length > 0) {
+						console.log(banned.join(', '));
+						if(config.hidePosts.mode == 'hideContent'){
+							$('.hubs, .content', this).hide();
+						} else {
+							$(this).remove();
+						}
 					}
 				});
 			}
@@ -264,6 +291,17 @@
 				});
 				$ha_button.appendTo($menu);
 
+				var $hh_button = $('<a href="javascript://">Скрываемые хабы</a>');
+				$hh_button.click(function () {
+					var text = config.hidePosts.hubs ? config.hidePosts.hubs.join(', '): "";
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', text);
+					if (!auth)
+						return;
+					config.hidePosts.hubs = auth.replace(/\s/g, '').split(',');
+					localStorage.setItem('us_config', JSON.stringify(config));
+				});
+				$hh_button.appendTo($menu);
+
 				var $mj_button = $('<a href="javascript://">MathJax: <span>' + (config.mathjax ? 'on' : 'off') + '</span></a>');
 				$mj_button.click(function () {
 					var $state = $(this).children('span')
@@ -340,4 +378,8 @@
 	function trim(str) {
 		return str.replace(/^\s*/, '').replace(/\s*$/, '');
 	}
+
+	function getName() {
+		return $(this).attr("href").split("/")[4];
+	};
 })(window);
