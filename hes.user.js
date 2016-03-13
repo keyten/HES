@@ -46,7 +46,7 @@
 				'ragequit',
 				'SLY_G'
 			],
-			'hubs': [
+			hubs: [
 				'mvideo',
 				'icover',
 				'gearbest'
@@ -283,7 +283,8 @@
 
 				var $ha_button = $('<a href="javascript://">Скрываемые авторы</a>');
 				$ha_button.click(function () {
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', config.hidePosts.authors.join(', '));
+					var list = (config.hidePosts.authors || []).join(', ')
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
 					if (!auth)
 						return;
 					config.hidePosts.authors = auth.replace(/\s/g, '').split(',');
@@ -293,12 +294,12 @@
 
 				var $hh_button = $('<a href="javascript://">Скрываемые хабы</a>');
 				$hh_button.click(function () {
-					var text = config.hidePosts.hubs ? config.hidePosts.hubs.join(', '): "";
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', text);
+					var list = (config.hidePosts.hubs || []).join(', ');
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
 					if (!auth)
 						return;
 					config.hidePosts.hubs = auth.replace(/\s/g, '').split(',');
-					localStorage.setItem('us_config', JSON.stringify(config));
+					updateLSConfig()
 				});
 				$hh_button.appendTo($menu);
 
