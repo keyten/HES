@@ -69,11 +69,7 @@
 	var citem;
 	if (citem = localStorage.getItem('us_config')) {
 		citem = JSON.parse(citem);
-		for (var key in citem) {
-			if (!Object.prototype.hasOwnProperty.call(citem, key))
-				continue;
-			config[key] = citem[key];
-		}
+		extend(config, citem)
 	}
 	else updateLSConfig()
 
@@ -382,5 +378,20 @@
 
 	function getName() {
 		return $(this).attr("href").split("/")[4];
+	}
+
+	// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
+	function extend(destination, source) {
+		for (var property in source) {
+			if(!source.hasOwnProperty(property)) continue;
+			if (source[property] && source[property].constructor &&
+				source[property].constructor === Object) {
+				destination[property] = destination[property] || {};
+				arguments.callee(destination[property], source[property]);
+			} else {
+				destination[property] = source[property];
+			}
+		}
+		return destination;
 	};
 })(window);
