@@ -1,6 +1,8 @@
 # Habrahabr Enhancement Suite
 Юзерскрипт для Хабрахабра / Гиктаймс / Мегамозга.
 
+[Установить](https://raw.githubusercontent.com/keyten/HES/master/hes.user.js) (нужен Greasemonkey или Tampermonkey).
+
 ![Скриншот](https://habrastorage.org/getpro/geektimes/post_images/8df/3a5/551/8df3a55512cc12a6038cfe8545ee7310.png)
 
 ### Текущие возможности:
