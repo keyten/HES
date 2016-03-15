@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     1.1.0
+// @version     1.1.1
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -154,7 +154,7 @@
 			// скрываем авторов
 			if (config.hidePosts.enabled
 				&& config.hidePosts.authors.length > 0) {
-				$('.post').each(function () {
+				$('.posts .post').each(function () {
 					var author = trim($('.post-author__link', this).text());
 					author = author.substr(1);
 					console.log(author);
@@ -171,7 +171,7 @@
 			if (config.hidePosts.enabled
 				&& config.hidePosts.hubs
 				&& config.hidePosts.hubs.length > 0) {
-				$('.post').each(function() {
+				$('.posts .post').each(function() {
 					var pHubNames = $('.hub', this).map(getName).get();
 					var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
 										.map(getName).get();
