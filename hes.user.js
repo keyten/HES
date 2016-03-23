@@ -194,7 +194,7 @@
 			if (config.mathjax) {
 				var id = 0;
 				// заменяем картинки на формулы
-				$('img[src^="https://tex.s2cms.ru/svg/"]').each(function () {
+				$('img[src^="http://tex.s2cms.ru/svg/"], img[src^="https://tex.s2cms.ru/svg/"]').each(function () {
 
 					var $this = $(this);
 
