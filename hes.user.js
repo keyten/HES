@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     1.1.1
+// @version     1.1.2
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
