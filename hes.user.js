@@ -194,14 +194,13 @@
 			if (config.mathjax) {
 				var id = 0;
 				// заменяем картинки на формулы
-				$('img[src^="https://tex.s2cms.ru/svg/"]').each(function () {
+				$('img[src^="http://tex.s2cms.ru/svg/"], img[src^="https://tex.s2cms.ru/svg/"]').each(function () {
 
 					var $this = $(this);
 
 					// парсим код
-					var code = this.src.replace(/^https:\/\/tex\.s2cms\.ru\/svg/, '');
-					code = code.substr(1);
-					code = unescape(code);
+					var decodedURL = decodeURIComponent(this.src)
+					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/svg\/(\\inline)?/, '');
 
 					// создаём объект для TeX-формулы
 					var span = $('<span></span>');
