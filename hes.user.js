@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     1.1.1
+// @version     1.1.2
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -73,6 +73,30 @@
 	}
 	else updateLSConfig()
 
+	// ивертируем прозрачные изображения с тёмным контентом
+	var invertTransparentDarkImages = function () {
+		delayedStart(function () {return window['$']}, function () {
+			var _process = function () {
+				$('.content img[src]').each(function () {
+					var $el = $(this);
+					resemble($el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')).onComplete(function (data) {
+						if (data.brightness < 10 && data.alpha > 70) {
+							$el.addClass('image-inverted')
+						}
+					})
+				})
+			}
+
+			if (window['resemble']) {
+				return _process()
+			}
+
+			$.getScript('https://rawgit.com/extempl/Resemble.js/master/resemble.js', function () {
+				delayedStart(function() {return window['resemble']}, _process)
+			})
+		})
+	}
+
 	var setNightMode = function () {
 		var styles;
 		var s = document.createElement('style');
@@ -83,10 +107,12 @@
 			s.textContent = styles;
 		}
 
-		ajax('https://raw.githubusercontent.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
+		ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
 			localStorage.setItem('us_nmstyle', data);
 			s.textContent = data;
 		});
+
+		invertTransparentDarkImages()
 	}
 
 	if (config.nightMode) {
@@ -139,14 +165,9 @@
 		$('#xpanel').children('.refresh').click(function () {
 			var $el = $(this)
 
-			var _emitEvent = function () {
-				if ($el.hasClass('loading')) {
-					return setTimeout(_emitEvent, 100)
-				}
-
+			setTimeout(delayedStart.bind(this, function () {return !$el.hasClass('loading')}, function () {
 				$(document).trigger('comments.reloaded')
-			}
-			setTimeout(_emitEvent, 100)
+			}), 100)
 		})
 
 		$(function () {
@@ -392,5 +413,13 @@
 			}
 		}
 		return destination;
-	};
+	}
+
+	function delayedStart(expr, callback) {
+		if (!expr()) {
+			return setTimeout(delayedStart.bind(this, expr, callback), 100)
+		}
+		callback()
+	}
+
 })(window);
