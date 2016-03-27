@@ -217,7 +217,7 @@
 				});
 			}
 
-			if (config.nightMode) {
+			if (nmInterval) {
 				clearInterval(nmInterval);
 				nmInterval = null;
 			}
