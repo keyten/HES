@@ -224,6 +224,7 @@
 					var decodedURL = decodeURIComponent(this.src)
 					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
 						.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
+						.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
 
 					// создаём объект для TeX-формулы
 					var span = $('<span></span>');
@@ -249,7 +250,7 @@
 				var v = document.createElement('script');
 				v.type = 'text/x-mathjax-config';
 				v.textContent = "MathJax.Hub.Config({tex2jax:{inlineMath:[['$tex','$']],displayMath:[['$$tex','$$']]}, asciimath2jax:{delimiters:[['$asc','$']]}});\
-				MathJax.Hub.Register.MessageHook('TeX Jax - parse error',function (message) {debugger; var $span = $(message[4]).parent(); $span.prev('img').show(); $span.remove()});";
+				MathJax.Hub.Register.MessageHook('TeX Jax - parse error',function (message) {console.error(message); var $span = $(message[4]).parent(); $span.prev('img').show(); $span.remove()});";
 				var s = document.createElement('script');
 				s.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru';
 				document.head.appendChild(v);
