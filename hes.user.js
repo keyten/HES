@@ -94,6 +94,11 @@
 	var invertTransparentDarkImages = function (base) {
 		$(base || '.html_format').find('img[src]:not(.image-inverted)').each(function () {
 			var $el = $(this);
+
+			if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
+				return $el.addClass('image-inverted')
+			}
+
 			var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
 			resemble(link).onComplete(function (data) {
