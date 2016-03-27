@@ -115,7 +115,7 @@
 		});
 
 		nmInterval = setInterval(function () {
-			$('head').append($('#us_nmstyle'))
+			document.head.appendChild(document.getElementById('us_nmstyle'))
 		}, 300)
 
 		invertTransparentDarkImages()
