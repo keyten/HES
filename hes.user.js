@@ -116,7 +116,7 @@
 
 		nmInterval = setInterval(function () {
 			document.head.appendChild(document.getElementById('us_nmstyle'))
-		}, 300)
+		}, 200)
 
 		invertTransparentDarkImages()
 	}
