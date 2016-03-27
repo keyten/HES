@@ -211,6 +211,10 @@
 				});
 			}
 
+			if (config.nightMode) {
+				$('head').append($('#us_nmstyle'))
+			}
+
 			// красивые формулы
 			if (config.mathjax) {
 				var id = 0;
