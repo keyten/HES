@@ -74,17 +74,11 @@
 	else updateLSConfig()
 
 	// ивертируем прозрачные изображения с тёмным контентом
-	var invertTransparentDarkImages = function () {
+	var setImgInversionOn = function () {
 		delayedStart(function () {return window['$']}, function () {
 			var _process = function () {
-				$('.content img[src]').each(function () {
-					var $el = $(this);
-					resemble($el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')).onComplete(function (data) {
-						if (data.brightness < 10 && data.alpha > 70) {
-							$el.addClass('image-inverted')
-						}
-					})
-				})
+				$(document).on('comments.reloaded', invertNewTransparentDarkImages)
+				return invertTransparentDarkImages()
 			}
 
 			if (window['resemble']) {
@@ -92,9 +86,26 @@
 			}
 
 			$.getScript('https://rawgit.com/extempl/Resemble.js/master/resemble.js', function () {
-				delayedStart(function() {return window['resemble']}, _process)
+				delayedStart(function () {return window['resemble']}, _process)
 			})
 		})
+	}
+
+	var invertTransparentDarkImages = function (base) {
+		$(base || '.html_format').find('img[src]:not(.image-inverted)').each(function () {
+			var $el = $(this);
+			var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+
+			resemble(link).onComplete(function (data) {
+				if (data.brightness < 10 && data.alpha > 70) {
+					$el.addClass('image-inverted')
+				}
+			})
+		})
+	}
+
+	var invertNewTransparentDarkImages = function () {
+		invertTransparentDarkImages('.comment-item.is_new + .message')
 	}
 
 	var setNightMode = function () {
@@ -112,7 +123,7 @@
 			s.textContent = data;
 		});
 
-		invertTransparentDarkImages()
+		setImgInversionOn()
 	}
 
 	if (config.nightMode) {
@@ -343,6 +354,7 @@
 						var s = document.getElementById('us_nmstyle');
 						if (s)
 							document.head.removeChild(s);
+						$(document).off('comments.reloaded', invertNewTransparentDarkImages)
 					}
 					else {
 						config.nightMode = true;
