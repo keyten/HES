@@ -97,6 +97,8 @@
 		})
 	}
 
+	var nmInterval;
+
 	var setNightMode = function () {
 		var styles;
 		var s = document.createElement('style');
@@ -111,6 +113,10 @@
 			localStorage.setItem('us_nmstyle', data);
 			s.textContent = data;
 		});
+
+		nmInterval = setInterval(function () {
+			$('head').append($('#us_nmstyle'))
+		}, 300)
 
 		invertTransparentDarkImages()
 	}
@@ -212,7 +218,8 @@
 			}
 
 			if (config.nightMode) {
-				$('head').append($('#us_nmstyle'))
+				clearInterval(nmInterval);
+				nmInterval = null;
 			}
 
 			// красивые формулы
