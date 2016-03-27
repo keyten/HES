@@ -215,13 +215,15 @@
 			if (config.mathjax) {
 				var id = 0;
 				// заменяем картинки на формулы
-				$('img[src^="http://tex.s2cms.ru/svg/"], img[src^="https://tex.s2cms.ru/svg/"]').each(function () {
+				$('img[src*="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
+					'img[src*="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').each(function () {
 
 					var $this = $(this);
 
 					// парсим код
 					var decodedURL = decodeURIComponent(this.src)
-					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/svg\/(\\inline)?/, '');
+					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
+						.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
 
 					// создаём объект для TeX-формулы
 					var span = $('<span></span>');
@@ -231,10 +233,10 @@
 						this.id = 'texImage' + (id++);
 
 					if ($('div[style="text-align:center;"] > #' + this.id).length > 0) {
-						span.text('$$tex' + code + '$$');
+						span.html('$$tex' + code + '$$');
 					}
 					else {
-						span.text('$tex' + code + '$');
+						span.html('$tex' + code + '$');
 					}
 
 
@@ -246,8 +248,8 @@
 				// подключаем mathjax
 				var v = document.createElement('script');
 				v.type = 'text/x-mathjax-config';
-				v.textContent = "MathJax.Hub.Config({tex2jax:{inlineMath:[['$tex','$']],displayMath:[['$$tex','$$']]},asciimath2jax:{delimiters:[['$asc','$']]}});\
-				MathJax.Hub.Register.MessageHook('TeX Jax - parse error',function (message) {var $span = $(message[4]).parent(); $span.prev('img').show(); $span.remove()});";
+				v.textContent = "MathJax.Hub.Config({tex2jax:{inlineMath:[['$tex','$']],displayMath:[['$$tex','$$']]}, asciimath2jax:{delimiters:[['$asc','$']]}});\
+				MathJax.Hub.Register.MessageHook('TeX Jax - parse error',function (message) {debugger; var $span = $(message[4]).parent(); $span.prev('img').show(); $span.remove()});";
 				var s = document.createElement('script');
 				s.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru';
 				document.head.appendChild(v);
