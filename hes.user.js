@@ -268,8 +268,19 @@
 			{
 				var $tab = $('#settings_tab');
 				var $menu = $('<div class="menu"></div>');
-				$tab.append('<div class="title">HES</div>');
+				$tab.append('<div class="line"></div><div class="title">HES</div>');
 				$tab.append($menu);
+
+				$('head').append('<style>' +
+					'@media screen and (max-height: 700px) {' +
+					' #navbar .nav_tabs_content {overflow: visible}' +
+					' #navbar .nav_tabs_content #settings_tab {width: 400px}' +
+					' #settings_tab .title, #settings_tab .menu {box-sizing: border-box; width: 50%}' +
+					' #settings_tab .line {display: none}' +
+					' #settings_tab .line + .title, #settings_tab .line + .title + .menu {position: absolute; right: 0; top: 0}' +
+					' #settings_tab .line + .title + .menu {top: 49.8px}' +
+					'}' +
+				'</style>')
 
 				var $he_button = $('<a href="javascript://"></a>');
 				if (!config.hidePosts.enabled)
