@@ -113,6 +113,8 @@
 		invertTransparentDarkImages('.comment-item.is_new + .message')
 	}
 
+	var nmInterval;
+
 	var setNightMode = function () {
 		var styles;
 		var s = document.createElement('style');
@@ -128,6 +130,10 @@
 			s.textContent = data;
 		});
 
+		nmInterval = setInterval(function () {
+			document.head.appendChild(document.getElementById('us_nmstyle'))
+		}, 200)
+		
 		setImgInversionOn()
 	}
 
@@ -225,6 +231,11 @@
 						}
 					}
 				});
+			}
+
+			if (nmInterval) {
+				clearInterval(nmInterval);
+				nmInterval = null;
 			}
 
 			// красивые формулы
