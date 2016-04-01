@@ -393,7 +393,7 @@
 			// create config menu layout
 			var $tab = $('#settings_tab');
 			var $title = $('<div class="line"></div><div class="title">HES</div>');
-			var $menu = $('<div class="menu"></div>');
+			var $menu = $('<div class="menu hes-menu"></div>');
 			$tab.append($title).append($menu);
 
 			// main
@@ -425,17 +425,13 @@
 
 				if (!(states || []).length) return; // There is no buttons for module
 
-				var $button = $('<a href="javascript://"></a>')
-				var innerButtonHTML = module.button.text;
-				if (states.length > 1) {
-					innerButtonHTML += ': <span>' + state + '</span>';
-				}
+				var $button = $('<a href="javascript://">' + module.button.text + '</a>')
+				if (states.length > 1) $button.attr('data-state', state);
 
-				$button.html(innerButtonHTML);
 				$button.click(function () {
 					var stateIndex = states.indexOf(config[key].state);
 					var newState = states[stateIndex + 1] || states[0];
-					$(this).children('span').text(newState);
+					if (states.length > 1) $(this).attr('data-state', newState);
 					config[key].state = newState;
 					updateLSConfig();
 					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)()

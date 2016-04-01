@@ -1,5 +1,9 @@
 @media screen {
 
+	.hes-menu a[data-state]::after {
+		content: ": " attr(data-state);
+	}
+
 	/* Settings styles for < 700px height */
 	@media screen and (max-height: 700px) {
 
