@@ -95,7 +95,7 @@
 		button: {
 			text: 'Hide authors',
 			states: {
-				default: function () {
+				on: function () {
 					var list = (config.hideAuthors.list || []).join(', ');
 					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
 					if (!auth)
@@ -140,7 +140,7 @@
 		button: {
 			text: 'Hide hubs',
 			states: {
-				default: function () {
+				on: function () {
 					var list = (config.hideHubs.list || []).join(', ');
 					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
 					if (!auth)
@@ -375,7 +375,7 @@
 	// initial start
 	Object.keys(modules).forEach(function (key) {
 		var module = modules[key];
-		if (~['on', 'partially', 'default'].indexOf(config[key].state)) {
+		if (~['on', 'partially'].indexOf(config[key].state)) {
 			(module.scriptLoaded || _f).call(module)
 		}
 	})
@@ -410,8 +410,10 @@
 
 			Object.keys(modules).forEach(function (key) {
 				var module = modules[key];
-				var state = config[key].state || 'default';
-				if (~['on', 'partially', 'default'].indexOf(state)) {
+				var states = Object.keys(module.button.states)
+
+				var state = config[key].state || states[0];
+				if (~['on', 'partially'].indexOf(state)) {
 					// document loaded start
 					(module.documentLoaded || _f).call(module);
 
@@ -421,15 +423,15 @@
 					}
 				}
 
+				if (!(states || []).length) return; // There is no buttons for module
 
 				var $button = $('<a href="javascript://"></a>')
 				var innerButtonHTML = module.button.text;
-				if (module.config.state != 'default') {
+				if (states.length > 1) {
 					innerButtonHTML += ': <span>' + state + '</span>';
 				}
-				$button.html(innerButtonHTML);
 
-				var states = Object.keys(module.button.states)
+				$button.html(innerButtonHTML);
 				$button.click(function () {
 					var stateIndex = states.indexOf(config[key].state);
 					var newState = states[stateIndex + 1] || states[0];
