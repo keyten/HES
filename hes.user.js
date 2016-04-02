@@ -315,14 +315,14 @@
 			var module = this;
 			$(comments).each(function (i, comment) {
 				var depth = 5 // максимальная глубина вложенности
+				var nodeList = []
 				var _seekAndReplace = function (node, depth) {
 					if (!--depth) return;
 					Array.prototype.forEach.call(node.childNodes, function (node) {
 						if (node.nodeType == 3) { // если текст - искать/заменять
-							var $node = $(node)
-							if (!$node.parent('a').length) { // если родитель не ссылка
+							if (!$(node).parent().is('a')) { // если родитель не ссылка
 								if (module.linkReg.test(node.nodeValue)) {
-									$node.replaceWith(node.nodeValue.replace(module.linkReg, module.template))
+									nodeList.push(node)
 								}
 							}
 						} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
@@ -331,6 +331,10 @@
 					})
 				}
 				_seekAndReplace(comment, depth)
+
+				nodeList.forEach(function (node) {
+					$(node).replaceWith(node.nodeValue.replace(module.linkReg, module.template))
+				})
 			})
 		},
 		documentLoaded: function () {
