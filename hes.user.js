@@ -72,7 +72,7 @@
 			}
 		}
 	}
-	
+
 	modules.hideAuthors = {
 		config: {
 			list: [
@@ -106,7 +106,7 @@
 			}
 		}
 	}
-	
+
 	modules.hideHubs = {
 		config: {
 			list: [
@@ -151,7 +151,7 @@
 			}
 		}
 	}
-	
+
 	modules.mathjax = {
 		config: {state: 'on'},
 
@@ -289,7 +289,7 @@
 			}
 		}
 	}
-	
+
 	modules.hideUserInfo = {
 		config: {state: 'off'},
 		documentLoaded: function () {
@@ -309,7 +309,7 @@
 	modules.replaceLinks = {
 		config: {state: 'on'},
 		// regExp: https://gist.github.com/dperini/729294
-		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?)[^)]/gi,
+		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?[^)])/gi,
 		template: '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>',
 		replaceLinks: function (comments) {
 			var module = this;
@@ -321,7 +321,7 @@
 					Array.prototype.forEach.call(node.childNodes, function (node) {
 						if (node.nodeType == 3) { // если текст - искать/заменять
 							if (!$(node).parent().is('a')) { // если родитель не ссылка
-								if (module.linkReg.test(node.nodeValue)) {
+								if ((node.nodeValue.match(module.linkReg) || []).length) {
 									nodeList.push(node)
 								}
 							}
