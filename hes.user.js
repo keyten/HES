@@ -86,9 +86,12 @@
 		documentLoaded: function () {
 			if (!(config.hideAuthors.list || []).length) return;
 
-			$('.posts .post:not(.hide-post)').filter(function () {
+			this.updatePosts();
+		},
+		updatePosts: function () {
+			$('.posts .hide-post').removeClass('hide-post');
+			$('.posts .post').filter(function () {
 				var author = trim($('.post-author__link', this).text()).substr(1);
-				console.log(author);
 				return ~config.hideAuthors.list.indexOf(author);
 			}).addClass('hide-post');
 		},
@@ -98,10 +101,11 @@
 				on: function () {
 					var list = (config.hideAuthors.list || []).join(', ');
 					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (!auth)
+					if (auth == null)
 						return;
 					config.hideAuthors.list = auth.replace(/\s/g, '').split(',');
-					this.documentLoaded();
+					updateLSConfig();
+					this.updatePosts();
 				}
 			}
 		}
