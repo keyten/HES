@@ -1,0 +1,47 @@
+@media screen {
+
+	.hes-menu a[data-state]::after {
+		content: ": " attr(data-state);
+	}
+
+	/* Settings styles for < 700px height */
+	@media screen and (max-height: 700px) {
+
+		#navbar .nav_tabs_content {
+			overflow: visible;
+		}
+
+		#navbar .nav_tabs_content #settings_tab {
+			width: 400px;
+		}
+
+		#settings_tab .title,
+		#settings_tab .menu {
+			box-sizing: border-box;
+			width: 50%;
+		}
+
+		#settings_tab .line {
+			display: none;
+		}
+
+		#settings_tab .line .title,
+		#settings_tab .line .title .menu {
+			position: absolute;
+			right: 0;
+			top: 0;
+		}
+
+		#settings_tab .line .title .menu {
+			top: 49.8px;
+		}
+	}
+
+
+	/* Unchecked links */
+	.html_format.message a.unchecked_link,
+	.html_format.message a.unchecked_link:visited {
+		color: darkred;
+	}
+
+}

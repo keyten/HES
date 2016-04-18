@@ -16,69 +16,254 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     1.1.5
+// @version     2.1.5
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
 
-// Настройки
-// Авторы, посты которых скрываем
-(function (window) {
+/*
+ modules.module = {
+   config: {state: string, default state: 'on', 'off', custom}
+   scriptLoaded: function
+   documentLoaded: function, on document load
+   commentsReloaded: function, on comments reloaded
+   button: {
+     text: string
+     states: {
+       on: function, fires when setting is triggered on
+       off: function, fires when setting is triggered off
+       custom
+     }
+   }
+ }
+ */
 
-	var ajax = function (url, callback) {
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function () {
-			if (xhttp.readyState == 4 && xhttp.status == 200) {
-				callback(xhttp.responseText);
+(function (window) {
+	"use strict"
+
+	// modules describe
+	var modules = {}
+	modules.hidePosts = {
+		config: {state: 'partially'},
+		scriptLoaded: function () {
+			delayedStart(function () {return window.jQuery}, function () {
+				this.button.states[this.config.state].call(this)
+			}.bind(this))
+		},
+		button: {
+			text: 'Hide posts',
+			states: {
+				on: function () {
+					this.button.states.off();
+					$('<style id="hide_posts">' +
+						'.post.hide-post {display: none !important}' +
+						'</style>').appendTo('head');
+				},
+				off: function () {
+					$('style#hide_posts').remove()
+				},
+				partially: function () {
+					this.button.states.off();
+					$('<style id="hide_posts">' +
+						'.post.hide-post .hubs, ' +
+						'.post.hide-post .content {display: none !important}' +
+						'</style>').appendTo('head');
+				}
 			}
-		};
-		xhttp.open("GET", url, true);
-		xhttp.send();
+		}
 	}
 
-	var config = {
-		hidePosts: {
-			enabled: true,
-			authors: [
+	modules.hideAuthors = {
+		config: {
+			list: [
 				'alizar',
 				'marks',
 				'ivansychev',
 				'ragequit',
 				'SLY_G'
-			],
-			hubs: [
+			]
+		},
+		documentLoaded: function () {
+			if (!(config.hideAuthors.list || []).length) return;
+
+			$('.posts .post:not(.hide-post)').filter(function () {
+				var author = trim($('.post-author__link', this).text()).substr(1);
+				console.log(author);
+				return ~config.hideAuthors.list.indexOf(author);
+			}).addClass('hide-post');
+		},
+		button: {
+			text: 'Hide authors',
+			states: {
+				on: function () {
+					var list = (config.hideAuthors.list || []).join(', ');
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
+					if (!auth)
+						return;
+					config.hideAuthors.list = auth.replace(/\s/g, '').split(',');
+					this.documentLoaded();
+				}
+			}
+		}
+	}
+
+	modules.hideHubs = {
+		config: {
+			list: [
 				'mvideo',
 				'icover',
 				'gearbest'
-			],
-			mode: 'hideContent'
+			]
 		},
-		mathjax: true,
+		getName: function () {
+			return $(this).attr("href").split("/")[4];
+		},
+		documentLoaded: function () {
+			if (!(config.hideHubs.list || []).length) return;
+			var module = this;
 
-		nightMode: false,
+			$('.posts .post:not(.hide-post)').filter(function () {
+				var pHubNames = $('.hub', this).map(module.getName).get(); // TODO refactor with $(allHubs).map
+				var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
+					.map(module.getName).get();
+				var hubNames = pHubNames.concat(mpHubNames);
 
-		hideUserInfo: false, // скрывать "плашки", появл. при наведении на ник пользователя
-
-		replaceLinks: true // замена ссылок в комментариях от пользователей с низкой кармой на кликабельные
-	};
-
-	// подгружаем настройки из localStorage
-	var updateLSConfig = function () {
-		return localStorage.setItem('us_config', JSON.stringify(config));
+				var banned = hubNames.filter(function (value) {
+					return ~config.hideHubs.list.indexOf(value);
+				});
+				if (banned.length) {
+					console.log((banned).join(', '));
+				}
+				return !!banned.length;
+			}).addClass('hide-post');
+		},
+		button: {
+			text: 'Hide hubs',
+			states: {
+				on: function () {
+					var list = (config.hideHubs.list || []).join(', ');
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
+					if (!auth)
+						return;
+					config.hideHubs.list = auth.replace(/\s/g, '').split(',');
+					this.documentLoaded();
+				}
+			}
+		}
 	}
-	var citem;
-	if (citem = localStorage.getItem('us_config')) {
-		citem = JSON.parse(citem);
-		extend(config, citem)
-	}
-	else updateLSConfig()
 
-	// ивертируем прозрачные изображения с тёмным контентом
-	var setImgInversionOn = function () {
-		delayedStart(function () {return window['$']}, function () {
+	modules.mathjax = {
+		config: {state: 'on'},
+
+		replaceTeX: function (base) {
+			$(base || '.html_format').find('img[src*="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
+				'img[src*="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').filter(':visible')
+			.each(function () {
+
+				var $this = $(this);
+
+				// парсим код
+				var decodedURL = decodeURIComponent(this.src);
+				var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
+					.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
+					.replace(/\\(right|left)\s([\[\{\]\}(|)])/g, "\\$1$2") // мерджим ошибочные резделители
+					.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
+
+				// проверяем, использовать $ или $$
+				code = '$tex' + code + '$';
+				if ($this.parent().is('div[style="text-align:center;"]') || $this.prev().is('br')) {
+					code = '$' + code + '$';
+				}
+
+				// скрываем картинку и выводим TeX
+				$this.hide().after('<span>' + code + '</span>')
+			});
+			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
+		},
+
+		documentLoaded: function () {
+			// подключаем mathjax
+			if (!$('[type="text/x-mathjax-config"]').length) {
+				$("<script type=\"text/x-mathjax-config\"> \
+					MathJax.Hub.Config({ \
+						tex2jax:{ \
+							inlineMath:[['$tex','$']], \
+							displayMath:[['$$tex','$$']] \
+						}, \
+						asciimath2jax:{delimiters:[['$asc','$']]} \
+					}); \
+					MathJax.Hub.Register.MessageHook('TeX Jax - parse error', function (message) { \
+						console.error(message); \
+						var $span = $(message[4]).parent(); \
+						$span.prev('img').show(); \
+						$span.remove() \
+					}); \
+				</script>").appendTo('head')
+			}
+
+			// заменяем картинки на формулы
+			this.replaceTeX();
+		},
+
+		commentsReloaded: function () {
+			this.replaceTeX('.comment-item.is_new + .message')
+		},
+		button: {
+			text: 'MathJax',
+			states: {
+				on: function () {
+					this.documentLoaded()
+				},
+				off: null
+			}
+		}
+	}
+
+	modules.nightMode = {
+		config: {state: 'off'},
+		id: 'hes_nmstyle',
+		scriptLoaded: function () {
+			var module = this;
+			var styles;
+			var s = document.createElement('style');
+			s.id = module.id;
+			document.head.appendChild(s);
+
+			if (styles = localStorage.getItem(module.id)) {
+				s.textContent = styles;
+			}
+
+			ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
+				localStorage.setItem(module.id, data);
+				s.textContent = data;
+			});
+
+			module.nmInterval = setInterval(function () {
+				document.head.appendChild(document.getElementById(module.id))
+			}, 200)
+		},
+		documentLoaded: function () {
+			if (this.nmInterval) {
+				clearInterval(this.nmInterval);
+				this.nmInterval = null;
+			}
+
 			var _process = function () {
-				$(document).on('comments.reloaded', invertNewTransparentDarkImages)
-				return invertTransparentDarkImages()
+				$('.content img[src]').each(function () {
+					var $el = $(this);
+
+					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
+						return $el.addClass('image-inverted')
+					}
+
+					var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+
+					resemble(link).onComplete(function (data) {
+						if (data.brightness < 10 && data.alpha > 70) {
+							$el.addClass('image-inverted')
+						}
+					})
+				})
 			}
 
 			if (window['resemble']) {
@@ -86,382 +271,221 @@
 			}
 
 			$.getScript('https://rawgit.com/extempl/Resemble.js/master/resemble.js', function () {
-				delayedStart(function () {return window['resemble']}, _process)
+				delayedStart(function () {
+					return window['resemble']
+				}, _process)
 			})
-		})
-	}
-
-	var invertTransparentDarkImages = function (base) {
-		$(base || '.html_format').find('img[src]:not(.image-inverted)').each(function () {
-			var $el = $(this);
-
-			if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
-				return $el.addClass('image-inverted')
-			}
-
-			var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
-
-			resemble(link).onComplete(function (data) {
-				if (data.brightness < 10 && data.alpha > 70) {
-					$el.addClass('image-inverted')
+		},
+		button: {
+			text: 'Night mode',
+			states: {
+				on: function () {
+					this.scriptLoaded()
+					this.documentLoaded()
+				},
+				off: function () {
+					$('style#hes_nmstyle').remove()
 				}
-			})
-		})
-	}
-
-	var invertNewTransparentDarkImages = function () {
-		invertTransparentDarkImages('.comment-item.is_new + .message')
-	}
-
-	var nmInterval;
-
-	var setNightMode = function () {
-		var styles;
-		var s = document.createElement('style');
-		s.id = 'us_nmstyle';
-		document.head.appendChild(s);
-
-		if (styles = localStorage.getItem('us_nmstyle')) {
-			s.textContent = styles;
+			}
 		}
-
-		ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
-			localStorage.setItem('us_nmstyle', data);
-			s.textContent = data;
-		});
-
-		nmInterval = setInterval(function () {
-			document.head.appendChild(document.getElementById('us_nmstyle'))
-		}, 200)
-		
-		setImgInversionOn()
 	}
 
-	if (config.nightMode) {
-		setNightMode()
+	modules.hideUserInfo = {
+		config: {state: 'off'},
+		documentLoaded: function () {
+			$('*[rel=user-popover]').webuiPopover('destroy');
+		},
+		button: {
+			text: 'Hide UserInfo',
+			states: {
+				on: function () {
+					this.documentLoaded()
+				},
+				off: null
+			}
+		}
 	}
 
-	// regExp: https://gist.github.com/dperini/729294
-	var link_reg = /((?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?)/gi
-	var template = '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>'
-
-	var replaceLinks = function ($comments) {
-		$comments.each(function (i, comment) {
-			var depth = 5 // максимальная глубина вложенности
-			var _seekAndReplace = function (node, depth) {
-				if (!--depth) return;
-				Array.prototype.forEach.call(node.childNodes, function (node) {
-					if (node.nodeType == 3) { // если текст - искать/заменять
-						var $node = $(node)
-						if (!$node.parent('a').length) { // если родитель не ссылка
-							if (link_reg.test(node.nodeValue)) {
-								$node.replaceWith(node.nodeValue.replace(link_reg, template))
+	modules.replaceLinks = {
+		config: {state: 'on'},
+		// regExp: https://gist.github.com/dperini/729294
+		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?[^)\s])/gi,
+		template: '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>',
+		replaceLinks: function (comments) {
+			var module = this;
+			$(comments).each(function (i, comment) {
+				var depth = 5 // максимальная глубина вложенности
+				var nodeList = []
+				var _seekAndReplace = function (node, depth) {
+					if (!--depth) return;
+					Array.prototype.forEach.call(node.childNodes, function (node) {
+						if (node.nodeType == 3) { // если текст - искать/заменять
+							if (!$(node).parent().is('a')) { // если родитель не ссылка
+								if ((node.nodeValue.match(module.linkReg) || []).length) {
+									nodeList.push(node)
+								}
 							}
+						} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
+							_seekAndReplace(node, depth)
 						}
-					} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
-						_seekAndReplace(node, depth)
-					}
+					})
+				}
+				_seekAndReplace(comment, depth)
+
+				nodeList.forEach(function (node) {
+					$(node).replaceWith(node.nodeValue.replace(module.linkReg, module.template))
 				})
+			})
+		},
+		documentLoaded: function () {
+			this.replaceLinks('.comment-item + .message')
+		},
+		commentsReloaded: function () {
+			this.replaceLinks('.comment-item.is_new + .message')
+		},
+		button: {
+			text: 'Clickable links',
+			states: {
+				on: function () {
+					this.documentLoaded()
+				},
+				off: null
 			}
-
-
-			_seekAndReplace(comment, depth)
-		})
+		}
 	}
 
-	var replaceAllLinks = function () {
-		$('head').append('<style id="unchecked_links">' +
-			'.html_format.message  a.unchecked_link, ' +
-			'.html_format.message  a.unchecked_link:visited { ' +
-			'  color: darkred; ' +
-			'}</style>')
-		replaceLinks($('.comment-item + .message'))
-	}
-	var replaceNewLinks = function () {
-		replaceLinks($('.comment-item.is_new + .message'))
-	}
 
-	window.addEventListener('load', function () {
-		var $ = window.jQuery;
+	//======================================================================================
+	// main config
+	var config = {}
 
-		$('#xpanel').children('.refresh').click(function () {
-			var $el = $(this)
-
-			setTimeout(delayedStart.bind(this, function () {return !$el.hasClass('loading')}, function () {
-				$(document).trigger('comments.reloaded')
-			}), 100)
-		})
-
-		$(function () {
-
-			// скрываем авторов
-			if (config.hidePosts.enabled
-				&& config.hidePosts.authors.length > 0) {
-				$('.posts .post').each(function () {
-					var author = trim($('.post-author__link', this).text());
-					author = author.substr(1);
-					console.log(author);
-					if (config.hidePosts.authors.indexOf(author) > -1) {
-						if (config.hidePosts.mode == 'hideContent')
-							$('.hubs, .content', this).hide();
-						else
-							$(this).remove();
-					}
-				});
-			}
-
-			// скрываем посты из хабов
-			if (config.hidePosts.enabled
-				&& config.hidePosts.hubs
-				&& config.hidePosts.hubs.length > 0) {
-				$('.posts .post').each(function() {
-					var pHubNames = $('.hub', this).map(getName).get();
-					var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
-										.map(getName).get();
-					var hubNames = pHubNames.concat(mpHubNames);
-					var banned = hubNames.filter(function(value){
-						return config.hidePosts.hubs.indexOf(value) > -1;
-					});
-					if(banned.length > 0) {
-						console.log(banned.join(', '));
-						if(config.hidePosts.mode == 'hideContent'){
-							$('.hubs, .content', this).hide();
-						} else {
-							$(this).remove();
-						}
-					}
-				});
-			}
-
-			if (nmInterval) {
-				clearInterval(nmInterval);
-				nmInterval = null;
-			}
-
-			// красивые формулы
-			if (config.mathjax) {
-				var id = 0;
-				// заменяем картинки на формулы
-				$('img[src*="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
-					'img[src*="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').each(function () {
-
-					var $this = $(this);
-
-					// парсим код
-					var decodedURL = decodeURIComponent(this.src)
-					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
-						.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
-						.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
-
-					// создаём объект для TeX-формулы
-					var span = $('<span></span>');
-
-					// проверяем, использовать $ или $$
-					if (!this.id)
-						this.id = 'texImage' + (id++);
-
-					if ($('div[style="text-align:center;"] > #' + this.id).length > 0) {
-						span.html('$$tex' + code + '$$');
-					}
-					else {
-						span.html('$tex' + code + '$');
-					}
-
-
-					// скрываем картинку и выводим TeX
-					$this.after(span)
-					$this.hide();
-				});
-
-				// подключаем mathjax
-				var v = document.createElement('script');
-				v.type = 'text/x-mathjax-config';
-				v.textContent = "MathJax.Hub.Config({tex2jax:{inlineMath:[['$tex','$']],displayMath:[['$$tex','$$']]}, asciimath2jax:{delimiters:[['$asc','$']]}});\
-				MathJax.Hub.Register.MessageHook('TeX Jax - parse error',function (message) {console.error(message); var $span = $(message[4]).parent(); $span.prev('img').show(); $span.remove()});";
-				var s = document.createElement('script');
-				s.src = '//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru';
-				document.head.appendChild(v);
-				document.head.appendChild(s);
-			}
-
-			// скрываем плашки с именем-кармой-etc юзера
-			if (config.hideUserInfo) {
-				$('*[rel=user-popover]').webuiPopover('destroy');
-			}
-
-			if (config.replaceLinks) {
-				replaceAllLinks()
-				$(document).on('comments.reloaded', replaceNewLinks)
-			}
-
-			// добавляем менюшку с конфигом
-			{
-				var $tab = $('#settings_tab');
-				var $menu = $('<div class="menu"></div>');
-				$tab.append('<div class="line"></div><div class="title">HES</div>');
-				$tab.append($menu);
-
-				$('head').append('<style>' +
-					'@media screen and (max-height: 700px) {' +
-					' #navbar .nav_tabs_content {overflow: visible}' +
-					' #navbar .nav_tabs_content #settings_tab {width: 400px}' +
-					' #settings_tab .title, #settings_tab .menu {box-sizing: border-box; width: 50%}' +
-					' #settings_tab .line {display: none}' +
-					' #settings_tab .line + .title, #settings_tab .line + .title + .menu {position: absolute; right: 0; top: 0}' +
-					' #settings_tab .line + .title + .menu {top: 49.8px}' +
-					'}' +
-				'</style>')
-
-				var $he_button = $('<a href="javascript://"></a>');
-				if (!config.hidePosts.enabled)
-					$he_button.text('Скрывать посты: off');
-				else if (config.hidePosts.mode == 'hideContent')
-					$he_button.text('Скрывать частично');
-				else
-					$he_button.text('Скрывать посты: on');
-				$he_button.click(function () {
-					if (!config.hidePosts.enabled) {
-						config.hidePosts.enabled = true;
-						config.hidePosts.mode = 'hide';
-						$he_button.text('Скрывать посты: on');
-					}
-					else if (config.hidePosts.mode == 'hideContent') {
-						config.hidePosts.enabled = false;
-						$he_button.text('Скрывать посты: off');
-					}
-					else {
-						config.hidePosts.enabled = true;
-						config.hidePosts.mode = 'hideContent';
-						$he_button.text('Скрывать частично');
-					}
-					updateLSConfig()
-				});
-				$he_button.appendTo($menu);
-
-				var $ha_button = $('<a href="javascript://">Скрываемые авторы</a>');
-				$ha_button.click(function () {
-					var list = (config.hidePosts.authors || []).join(', ')
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (!auth)
-						return;
-					config.hidePosts.authors = auth.replace(/\s/g, '').split(',');
-					updateLSConfig()
-				});
-				$ha_button.appendTo($menu);
-
-				var $hh_button = $('<a href="javascript://">Скрываемые хабы</a>');
-				$hh_button.click(function () {
-					var list = (config.hidePosts.hubs || []).join(', ');
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (!auth)
-						return;
-					config.hidePosts.hubs = auth.replace(/\s/g, '').split(',');
-					updateLSConfig()
-				});
-				$hh_button.appendTo($menu);
-
-				var $mj_button = $('<a href="javascript://">MathJax: <span>' + (config.mathjax ? 'on' : 'off') + '</span></a>');
-				$mj_button.click(function () {
-					var $state = $(this).children('span')
-					if (config.mathjax) {
-						config.mathjax = false;
-						$state.text('off')
-					}
-					else {
-						config.mathjax = true;
-						$state.text('on')
-					}
-					updateLSConfig()
-				});
-				$mj_button.appendTo($menu);
-
-				var $nm_button = $('<a href="javascript://">Night mode: <span>' + (config.nightMode ? 'on' : 'off') + '</span></a>');
-				$nm_button.click(function () {
-					var $state = $(this).children('span')
-					if (config.nightMode) {
-						config.nightMode = false;
-						$state.text('off')
-						var s = document.getElementById('us_nmstyle');
-						if (s)
-							document.head.removeChild(s);
-						$(document).off('comments.reloaded', invertNewTransparentDarkImages)
-					}
-					else {
-						config.nightMode = true;
-						$state.text('on')
-						setNightMode()
-					}
-					updateLSConfig()
-				});
-				$nm_button.appendTo($menu);
-
-				// Hide user info. Аббревиатуру не делать.
-				var $h_button = $('<a href="javascript://">Скрывать юзеринфо: <span>' + (config.hideUserInfo ? 'on' : 'off') + '</span></a>');
-				$h_button.click(function () {
-					var $state = $(this).children('span')
-					if (config.hideUserInfo) {
-						config.hideUserInfo = false;
-						$state.text('off')
-					}
-					else {
-						config.hideUserInfo = true;
-						$state.text('on')
-					}
-					updateLSConfig()
-				});
-				$h_button.appendTo($menu);
-
-
-				var $l_button = $('<a href="javascript://">Кликабельные ссылки: <span>' + (config.replaceLinks ? 'on' : 'off') + '</span></a>');
-				$l_button.click(function () {
-					var $state = $(this).children('span')
-					if (config.replaceLinks) {
-						config.replaceLinks = false
-						$state.text('off')
-						$('style#unchecked_links').remove()
-						$(document).off('comments.reloaded', replaceNewLinks)
-					}
-					else {
-						config.replaceLinks = true
-						$state.text('on')
-						replaceAllLinks()
-						$(document).on('comments.reloaded', replaceNewLinks)
-					}
-					updateLSConfig()
-				})
-				$l_button.appendTo($menu);
-			}
-		})
+	Object.keys(modules).forEach(function (key) {
+		config[key] = modules[key].config;
 	});
 
-	function trim(str) {
-		return str.replace(/^\s*/, '').replace(/\s*$/, '');
-	}
+	// main logic
 
-	function getName() {
-		return $(this).attr("href").split("/")[4];
+	// подгружаем настройки из localStorage
+	var updateLSConfig = function () {
+		return localStorage.setItem('hes_config', JSON.stringify(config));
 	}
+	var citem;
+	if (citem = localStorage.getItem('hes_config')) {
+		citem = JSON.parse(citem);
+		extend(config, citem);
+	}
+	else updateLSConfig()
 
-	// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
-	function extend(destination, source) {
-		for (var property in source) {
-			if(!source.hasOwnProperty(property)) continue;
-			if (source[property] && source[property].constructor &&
-				source[property].constructor === Object) {
-				destination[property] = destination[property] || {};
-				arguments.callee(destination[property], source[property]);
-			} else {
-				destination[property] = source[property];
-			}
+	// initial start
+	Object.keys(modules).forEach(function (key) {
+		var module = modules[key];
+		if (~['on', 'partially'].indexOf(config[key].state)) {
+			(module.scriptLoaded || _f).call(module)
 		}
-		return destination;
-	}
+	})
 
-	function delayedStart(expr, callback) {
-		if (!expr()) {
-			return setTimeout(delayedStart.bind(this, expr, callback), 100)
+	window.addEventListener('load', delayedStart(function () { return window.jQuery }, function () {
+		var $ = window.jQuery;
+		$(function () {
+
+			// load main styles
+			ajax('https://rawgit.com/keyten/HES/master/style.css', function (data) {
+				var $s = $('<style id="hes_mainstyles"></style>')
+				$s.text(data).appendTo('head');
+			});
+
+			// create config menu layout
+			var $tab = $('#settings_tab');
+			var $title = $('<div class="line"></div><div class="title">HES</div>');
+			var $menu = $('<div class="menu hes-menu"></div>');
+			$tab.append($title).append($menu);
+
+			// main
+
+			$('#xpanel').children('.refresh').click(function () {
+				var $el = $(this)
+
+				setTimeout(delayedStart.bind(this, function () {
+					return !$el.hasClass('loading')
+				}, function () {
+					$(document).trigger('comments.reloaded')
+				}), 100)
+			})
+
+			Object.keys(modules).forEach(function (key) {
+				var module = modules[key];
+				var states = Object.keys(module.button.states)
+
+				var state = config[key].state || states[0];
+				if (~['on', 'partially'].indexOf(state)) {
+					// document loaded start
+					(module.documentLoaded || _f).call(module);
+
+					// comments reloaded event subscription
+					if (module.commentsReloaded) {
+						$(document).on('comments.reloaded', module.commentsReloaded.bind(module))
+					}
+				}
+
+				if (!(states || []).length) return; // There is no buttons for module
+
+				var $button = $('<a href="javascript://">' + module.button.text + '</a>')
+				if (states.length > 1) $button.attr('data-state', state);
+
+				$button.click(function () {
+					var stateIndex = states.indexOf(config[key].state);
+					var newState = states[stateIndex + 1] || states[0];
+					if (states.length > 1) $(this).attr('data-state', newState);
+					config[key].state = newState;
+					updateLSConfig();
+					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)()
+					if (module.commentsReloaded) {
+						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module))
+					}
+				}).appendTo($menu);
+			})
+		})
+	}))
+})(window)
+
+
+// Utils
+
+function ajax(url, callback) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function () {
+		if (xhttp.readyState == 4 && xhttp.status == 200) {
+			callback(xhttp.responseText);
 		}
-		callback()
-	}
+	};
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
 
-})(window);
+function trim(str) {
+	return str.replace(/^\s+|\s+$/g, '')
+}
+
+// http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
+function extend(destination, source) {
+	for (var property in source) {
+		if (!source.hasOwnProperty(property)) continue;
+		if (source[property] && source[property].constructor &&
+			source[property].constructor === Object) {
+			destination[property] = destination[property] || {};
+			arguments.callee(destination[property], source[property]);
+		} else {
+			destination[property] = source[property];
+		}
+	}
+	return destination;
+}
+
+function delayedStart(expr, callback) {
+	if (!expr()) {
+		return setTimeout(delayedStart.bind(this, expr, callback), 100)
+	}
+	callback()
+}
+
+function _f() {}
