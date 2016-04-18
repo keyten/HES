@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.1.5
+// @version     2.1.6
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -40,6 +40,8 @@
 
 (function (window) {
 	"use strict"
+
+	var version = '2.1.6';
 
 	// modules describe
 	var modules = {}
@@ -403,6 +405,16 @@
 			var $title = $('<div class="line"></div><div class="title">HES</div>');
 			var $menu = $('<div class="menu hes-menu"></div>');
 			$tab.append($title).append($menu);
+
+			// title & menu hiding
+			$title.attr('title', 'Version: ' + version);
+			$title.toggle(function(){
+				$('.hes-menu').hide();
+				$title.css('color', 'gray');
+			}, function(){
+				$('.hes-menu').show();
+				$title.css('color', 'black');
+			});
 
 			// main
 
