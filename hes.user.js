@@ -58,7 +58,7 @@
 				on: function () {
 					this.button.states.off();
 					$('<style id="hide_posts">' +
-						'.post.hide-post {display: none !important}' +
+						'.post.hide-post-a, .post.hide-post-h {display: none !important}' +
 						'</style>').appendTo('head');
 				},
 				off: function () {
@@ -67,8 +67,8 @@
 				partially: function () {
 					this.button.states.off();
 					$('<style id="hide_posts">' +
-						'.post.hide-post .hubs, ' +
-						'.post.hide-post .content {display: none !important}' +
+						'.post.hide-post-a .hubs, .post.hide-post-h .hubs, ' +
+						'.post.hide-post-a .content, .post.hide-post-h .content {display: none !important}' +
 						'</style>').appendTo('head');
 				}
 			}
@@ -91,11 +91,10 @@
 			this.updatePosts();
 		},
 		updatePosts: function () {
-			$('.posts .hide-post').removeClass('hide-post');
-			$('.posts .post').filter(function () {
+			$('.posts .post').removeClass('hide-post-a').filter(function () {
 				var author = trim($('.post-author__link', this).text()).substr(1);
 				return ~config.hideAuthors.list.indexOf(author);
-			}).addClass('hide-post');
+			}).addClass('hide-post-a');
 		},
 		button: {
 			text: 'Hide authors',
@@ -106,7 +105,6 @@
 					if (auth == null)
 						return;
 					config.hideAuthors.list = auth.replace(/\s/g, '').split(',');
-					updateLSConfig();
 					this.updatePosts();
 				}
 			}
@@ -126,9 +124,13 @@
 		},
 		documentLoaded: function () {
 			if (!(config.hideHubs.list || []).length) return;
+
+			this.updatePosts();
+		},
+		updatePosts: function () {
 			var module = this;
 
-			$('.posts .post:not(.hide-post)').filter(function () {
+			$('.posts .post').removeClass('hide-post-h').filter(function () {
 				var pHubNames = $('.hub', this).map(module.getName).get(); // TODO refactor with $(allHubs).map
 				var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
 					.map(module.getName).get();
@@ -141,7 +143,7 @@
 					console.log((banned).join(', '));
 				}
 				return !!banned.length;
-			}).addClass('hide-post');
+			}).addClass('hide-post-h');
 		},
 		button: {
 			text: 'Hide hubs',
@@ -152,7 +154,7 @@
 					if (!auth)
 						return;
 					config.hideHubs.list = auth.replace(/\s/g, '').split(',');
-					this.documentLoaded();
+					this.updatePosts();
 				}
 			}
 		}
@@ -453,8 +455,8 @@
 					var newState = states[stateIndex + 1] || states[0];
 					if (states.length > 1) $(this).attr('data-state', newState);
 					config[key].state = newState;
-					updateLSConfig();
 					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)()
+					updateLSConfig();
 					if (module.commentsReloaded) {
 						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module))
 					}
