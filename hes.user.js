@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.1.7
+// @version     2.1.8
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -267,7 +267,7 @@
 					var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
 					resemble(link).onComplete(function (data) {
-						if (data.brightness < 10 && data.alpha > 70) {
+						if (data.brightness < 10 && data.alpha > 60) {
 							$el.addClass('image-inverted')
 						}
 					})
