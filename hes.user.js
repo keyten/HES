@@ -404,18 +404,14 @@
 
 			// create config menu layout
 			var $tab = $('#settings_tab');
-			var $title = $('<div class="line"></div><div class="title">HES</div>');
+			var $title = $('<div class="title">HES</div>');
 			var $menu = $('<div class="menu hes-menu"></div>');
-			$tab.append($title).append($menu);
+			$tab.append('<div class="line"></div>').append($title).append($menu);
 
 			// title & menu hiding
 			$title.attr('title', 'Version: ' + version);
-			$title.toggle(function(){
-				$('.hes-menu').hide();
-				$title.css('color', 'gray');
-			}, function(){
-				$('.hes-menu').show();
-				$title.css('color', 'black');
+			$title.click(function() {
+				$(this).toggleClass('menu-hidden')
 			});
 
 			// main

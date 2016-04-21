@@ -4,6 +4,14 @@
 		content: ": " attr(data-state);
 	}
 
+	#settings_tab .line + .title.menu-hidden {
+		color: gray;
+	}
+
+	#settings_tab .line + .title.menu-hidden + .menu {
+		display: none;
+	}
+
 	/* Settings styles for < 700px height */
 	@media screen and (max-height: 700px) {
 
@@ -25,14 +33,14 @@
 			display: none;
 		}
 
-		#settings_tab .line .title,
-		#settings_tab .line .title .menu {
+		#settings_tab .line + .title,
+		#settings_tab .line + .title + .menu {
 			position: absolute;
 			right: 0;
 			top: 0;
 		}
 
-		#settings_tab .line .title .menu {
+		#settings_tab .line + .title + .menu {
 			top: 49.8px;
 		}
 	}
