@@ -58,7 +58,7 @@
 				on: function () {
 					this.button.states.off();
 					$('<style id="hide_posts">' +
-						'.post.hide-post-a, .post.hide-post-h {display: none !important}' +
+						'.post[class*=hide-post] {display: none !important}' +
 						'</style>').appendTo('head');
 				},
 				off: function () {
@@ -67,8 +67,7 @@
 				partially: function () {
 					this.button.states.off();
 					$('<style id="hide_posts">' +
-						'.post.hide-post-a .hubs, .post.hide-post-h .hubs, ' +
-						'.post.hide-post-a .content, .post.hide-post-h .content {display: none !important}' +
+						'.post[class*=hide-post] .hubs, .post[class*=hide-post] .content {display: none !important}' +
 						'</style>').appendTo('head');
 				}
 			}
@@ -154,6 +153,45 @@
 					if (!auth)
 						return;
 					config.hideHubs.list = auth.replace(/\s/g, '').split(',');
+					this.updatePosts();
+				}
+			}
+		}
+	}
+
+	modules.hideFlows = {
+		config: {
+			list: [
+				'marketing',
+				'management'
+			]
+		},
+		getName: function () {
+			return this.length && $(this).attr("href").split("/")[4];
+		},
+		documentLoaded: function () {
+			if (!(config.hideFlows.list || []).length) return;
+
+			this.updatePosts();
+		},
+		updatePosts: function () {
+			var module = this
+
+			$('.posts .post').removeClass('hide-post-f').filter(function () {
+
+				var flow = module.getName.call($(this).find('.post__flow'))
+				return ~config.hideFlows.list.indexOf(flow);
+			}).addClass('hide-post-f');
+		},
+		button: {
+			text: 'Hide flows',
+			states: {
+				on: function () {
+					var list = (config.hideFlows.list || []).join(', ');
+					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
+					if (auth == null)
+						return;
+					config.hideFlows.list = auth.replace(/\s/g, '').split(',');
 					this.updatePosts();
 				}
 			}
