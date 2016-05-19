@@ -51,5 +51,34 @@
 	.html_format.message a.unchecked_link:visited {
 		color: darkred;
 	}
+  
+  .posts.hide .post[class*=hide-post] {
+	  display: none !important
+  }
+  
+  .posts.hide-partially .post[class*=hide-post] .hubs,
+  .posts.hide-partially .post[class*=hide-post] .content,
+  .posts.hide-partially .post[class*=hide-post] .megapost-head__hubs,
+  .posts.hide-partially .post[class*=hide-post] .article__body {
+	  display: none !important
+  }
+
+	.posts.hide-partially .post[class*=hide-post] .megapost-head__title,
+	.posts.hide-partially .post[class*=hide-post] .megapost-head__title-link {
+		font-size: 28px;
+		max-width: none !important
+	}
+
+	.posts.hide-partially .post[class*=hide-post] .megapost-cover__company-blog {
+		top: 0 !important
+	}
+
+	.posts.hide-partially .post[class*=hide-post] .megapost-head__meta {
+		margin-bottom: 13px !important
+	}
+
+	.posts.hide-partially .post[class*=hide-post] .megapost-cover__img {
+		height: 180px !important
+	}
 
 }

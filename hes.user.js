@@ -16,7 +16,7 @@
 // @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.0
+// @version     2.2.1
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -41,7 +41,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.1.6';
+	var version = '2.2.1';
 
 	// modules describe
 	var modules = {}
@@ -57,25 +57,14 @@
 			states: {
 				on: function () {
 					this.button.states.off();
-					$('<style id="hide_posts">' +
-						'.post[class*=hide-post] {display: none !important}' +
-						'</style>').appendTo('head');
+					$('.posts').addClass('hide')
 				},
 				off: function () {
-					$('style#hide_posts').remove()
+					$('.posts').removeClass('hide hide-partially')
 				},
 				partially: function () {
 					this.button.states.off();
-					$('<style id="hide_posts">' + // TODO move to CSS, trigger with class
-						'.post[class*=hide-post] .hubs, .post[class*=hide-post] .content,' +
-						'.post[class*=hide-post] .megapost-head__hubs, ' +
-						'.post[class*=hide-post] .article__body {display: none !important}' +
-						'.post[class*=hide-post] .megapost-head__title, ' +
-						'.post[class*=hide-post] .megapost-head__title-link {font-size: 28px; max-width: none !important}' +
-						'.post[class*=hide-post] .megapost-cover__company-blog {top: 0 !important}' +
-						'.post[class*=hide-post] .megapost-head__meta  {margin-bottom: 13px !important}' +
-						'.post[class*=hide-post] .megapost-cover__img  {height: 180px !important}' +
-						'</style>').appendTo('head');
+					$('.posts').addClass('hide-partially')
 				}
 			}
 		}
