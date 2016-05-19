@@ -4,16 +4,12 @@
 // @description Habrahabr Enhancement Suite
 // @include     http://geektimes.ru/*
 // @include     http://habrahabr.ru/*
-// @include     http://megamozg.ru/*
 // @include     https://geektimes.ru/*
 // @include     https://habrahabr.ru/*
-// @include     https://megamozg.ru/*
 // @match       http://geektimes.ru/*
 // @match       http://habrahabr.ru/*
-// @match       http://megamozg.ru/*
 // @match       https://geektimes.ru/*
 // @match       https://habrahabr.ru/*
-// @match       https://megamozg.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
 // @version     2.2.1
