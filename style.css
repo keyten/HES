@@ -51,7 +51,8 @@
 	.html_format.message a.unchecked_link:visited {
 		color: darkred;
 	}
-  
+
+	/* Hiding posts */
   .posts.hide .post[class*=hide-post] {
 	  display: none !important
   }
