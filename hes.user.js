@@ -66,8 +66,15 @@
 				},
 				partially: function () {
 					this.button.states.off();
-					$('<style id="hide_posts">' +
-						'.post[class*=hide-post] .hubs, .post[class*=hide-post] .content {display: none !important}' +
+					$('<style id="hide_posts">' + // TODO move to CSS, trigger with class
+						'.post[class*=hide-post] .hubs, .post[class*=hide-post] .content,' +
+						'.post[class*=hide-post] .megapost-head__hubs, ' +
+						'.post[class*=hide-post] .article__body {display: none !important}' +
+						'.post[class*=hide-post] .megapost-head__title, ' +
+						'.post[class*=hide-post] .megapost-head__title-link {font-size: 28px; max-width: none !important}' +
+						'.post[class*=hide-post] .megapost-cover__company-blog {top: 0 !important}' +
+						'.post[class*=hide-post] .megapost-head__meta  {margin-bottom: 13px !important}' +
+						'.post[class*=hide-post] .megapost-cover__img  {height: 180px !important}' +
 						'</style>').appendTo('head');
 				}
 			}
@@ -130,18 +137,10 @@
 			var module = this;
 
 			$('.posts .post').removeClass('hide-post-h').filter(function () {
-				var pHubNames = $('.hub', this).map(module.getName).get(); // TODO refactor with $(allHubs).map
-				var mpHubNames = $('.profile', $('.megapost-head__hubs', this).get())
-					.map(module.getName).get();
-				var hubNames = pHubNames.concat(mpHubNames);
-
-				var banned = hubNames.filter(function (value) {
-					return ~config.hideHubs.list.indexOf(value);
-				});
-				if (banned.length) {
-					console.log((banned).join(', '));
-				}
-				return !!banned.length;
+				var hubNames = $('.hub, .megapost-head__hubs .list__item-link', this).map(module.getName).get()
+				return config.hideHubs.list.some(function (hub) {
+					return ~hubNames.indexOf(hub)
+				})
 			}).addClass('hide-post-h');
 		},
 		button: {
