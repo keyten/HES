@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.1
+// @version     2.2.2
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -43,10 +43,8 @@
 	var modules = {}
 	modules.hidePosts = {
 		config: {state: 'partially'},
-		scriptLoaded: function () {
-			delayedStart(function () {return window.jQuery}, function () {
-				this.button.states[this.config.state].call(this)
-			}.bind(this))
+		documentLoaded: function () {
+			this.button.states[this.config.state].call(this)
 		},
 		button: {
 			text: 'Hide posts',
