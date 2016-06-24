@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.2
+// @version     2.2.3
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -287,7 +287,7 @@
 					var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
 					resemble(link).onComplete(function (data) {
-						if (data.brightness < 10 && data.alpha > 60) {
+						if (data.brightness < 10 && data.alpha > 60 || data.brightness < 1) {
 							$el.addClass('image-inverted')
 						}
 					})
