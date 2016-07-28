@@ -287,7 +287,9 @@
 					var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
 					resemble(link).onComplete(function (data) {
-						if (data.brightness < 10 && data.alpha > 60 || data.brightness < 1) {
+						if (data.brightness < 10 && data.alpha > 60 ||
+							  data.brightness < 6  && data.alpha > 30 ||
+							  data.brightness < 1) {
 							$el.addClass('image-inverted')
 						}
 					})
