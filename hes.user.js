@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.4
+// @version     2.2.5
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -289,7 +289,8 @@
 					resemble(link).onComplete(function (data) {
 						if (data.brightness < 10 && data.alpha > 60 ||
 							  data.brightness < 6  && data.alpha > 30 ||
-							  data.brightness < 1) {
+							  data.brightness < 1 ||
+								data.brightness > 87 && Math.abs(data.red - data.blue) < 2 && Math.abs(data.red - data.green) < 2) {
 							$el.addClass('image-inverted')
 						}
 					})
