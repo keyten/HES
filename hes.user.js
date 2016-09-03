@@ -290,7 +290,7 @@
 						if (data.brightness < 10 && data.alpha > 60 ||
 							  data.brightness < 6  && data.alpha > 30 ||
 							  data.brightness < 1 ||
-								data.brightness > 87 && Math.abs(data.red - data.blue) < 2 && Math.abs(data.red - data.green) < 2) {
+								data.brightness > 87 && data.white > 60) {
 							$el.addClass('image-inverted')
 						}
 					})
@@ -339,8 +339,8 @@
 
 	modules.replaceLinks = {
 		config: {state: 'on'},
-		// regExp: https://gist.github.com/dperini/729294
-		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?[^),.\s]?)/gi,
+		// regExp: https://gist.github.com/dperini/729294 TODO ignore closing bracket outside of RegExp if there was not open bracket
+		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?[^),;.\s]?)/gi,
 		template: '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>',
 		replaceLinks: function (comments) {
 			var module = this;
