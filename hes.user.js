@@ -184,8 +184,8 @@
 		config: {state: 'on'},
 
 		replaceTeX: function (base) {
-			$(base || '.html_format').find('img[src*="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
-				'img[src*="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').filter(':visible')
+			$(base || '.html_format').find('img[src^="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
+				'img[src^="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').filter(':visible')
 			.each(function () {
 
 				var $this = $(this);
