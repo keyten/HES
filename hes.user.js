@@ -351,7 +351,7 @@
 					if (!--depth) return;
 					Array.prototype.forEach.call(node.childNodes, function (node) {
 						if (node.nodeType == 3) { // если текст - искать/заменять
-							if (!$(node).parent().is('a')) { // если родитель не ссылка
+							if (!$(node).parents('a, code').length) { // если среди родителей нет ссылки и кода
 								if ((node.nodeValue.match(module.linkReg) || []).length) {
 									nodeList.push(node)
 								}
