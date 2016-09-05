@@ -82,4 +82,9 @@
 		height: 180px !important
 	}
 
+  .g-icon-tex::before {
+	  content: 'TeX';
+	  font-family: Verdana, sans-serif;
+  }
+
 }

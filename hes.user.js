@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.6
+// @version     2.2.8
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +37,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.2.1';
+	var version = '2.2.8';
 
 	// modules describe
 	var modules = {}
@@ -184,29 +184,64 @@
 		config: {state: 'on'},
 
 		replaceTeX: function (base) {
-			$(base || '.html_format').find('img[src^="http://tex.s2cms.ru/"], img[src^="https://tex.s2cms.ru/"],' +
-				'img[src^="http://latex.codecogs.com/"], img[src^="https://latex.codecogs.com/"]').filter(':visible')
-			.each(function () {
+			$(base || '.html_format').find('img[src*="//tex.s2cms.ru/"], img[src*="//latex.codecogs.com/"]').filter(':visible')
+				.each(function () {
 
-				var $this = $(this);
+					var $this = $(this);
 
-				// парсим код
-				var decodedURL = decodeURIComponent(this.src);
-				var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
-					.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
-					.replace(/\\(right|left)\s([\[\{\]\}(|)])/g, "\\$1$2") // мерджим ошибочные резделители
-					.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
+					// парсим код
+					var decodedURL = decodeURIComponent(this.src);
+					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
+						.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
+						.replace(/\\(right|left)\s([\[\{\]\}(|)])/g, "\\$1$2") // мерджим ошибочные резделители
+						.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
 
-				// проверяем, использовать $ или $$
-				code = '$tex' + code + '$';
-				if ($this.parent().is('div[style="text-align:center;"]') || $this.prev().is('br')) {
-					code = '$' + code + '$';
+					// проверяем, использовать $ или $$
+					code = '$tex' + code + '$';
+					if ($this.parent().is('div[style="text-align:center;"]') || $this.prev().is('br')) {
+						code = '$' + code + '$';
+					}
+
+					// скрываем картинку и выводим TeX
+					$this.hide().after('<span>' + code + '</span>')
+				});
+			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
+		},
+
+		addEditorButton: function () {
+			if ($('.editor-btn-latex').length) { return }
+
+			var button = $("<a class=\"btn editor-btn-tex\" title=\"Преобразовать выделенное в TeX\" \
+			href=\"//tex.s2cms.ru/g/TeX\" target=\"_blank\" tabindex=\"-1\">\
+			<span class=\"g-icon g-icon-tex\"></span></a>")
+
+			$('.wysiwyg_wrapper .help_holder').before(button)
+
+			button.click(function (e) {
+				e.preventDefault()
+				e.stopPropagation()
+
+				var textarea = $('#text_textarea, #comment_text')[0]
+
+				var val
+				if (textarea.selectionStart == textarea.selectionEnd) {
+					val = window.prompt('Выберите формулу в редакторе и нажмите кнопку, либо же введите формулу ниже:')
+				} else {
+					val = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
 				}
 
-				// скрываем картинку и выводим TeX
-				$this.hide().after('<span>' + code + '</span>')
-			});
-			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
+				val = trim(val)
+
+				if (!val) { return }
+
+				var img = "<img src=\"//tex.s2cms.ru/svg/" + encodeURIComponent(val) + "\" alt=\"" + val.replace(/"/g, '\\"')+ "\" />"
+
+				var taArr = textarea.value.split('')
+				taArr.splice(textarea.selectionStart, textarea.selectionEnd - textarea.selectionStart, img)
+
+				textarea.value = taArr.join('')
+
+			})
 		},
 
 		documentLoaded: function () {
@@ -230,7 +265,9 @@
 			}
 
 			// заменяем картинки на формулы
-			this.replaceTeX();
+			this.replaceTeX()
+
+			this.addEditorButton()
 		},
 
 		commentsReloaded: function () {
