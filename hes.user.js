@@ -537,7 +537,7 @@ function ajax(url, callback) {
 }
 
 function trim(str) {
-	return str.replace(/^\s+|\s+$/g, '')
+	return (str || '').replace(/^\s+|\s+$/g, '')
 }
 
 // http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
