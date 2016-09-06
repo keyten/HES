@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.9
+// @version     2.2.10
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +37,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.2.8';
+	var version = '2.2.10';
 
 	// modules describe
 	var modules = {}
@@ -314,7 +314,7 @@
 			}
 
 			var _process = function () {
-				$('.content img[src]').each(function () {
+				$('.content img[src]:visible').each(function () {
 					var $el = $(this);
 
 					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
@@ -476,15 +476,10 @@
 
 			// main
 
-			$('#xpanel').children('.refresh').click(function () {
-				var $el = $(this)
-
-				setTimeout(delayedStart.bind(this, function () {
-					return !$el.hasClass('loading')
-				}, function () {
-					$(document).trigger('comments.reloaded')
-				}), 100)
-			})
+			var refreshHandler = window['xpanel_refresh_button_click'].toString()
+				.replace('},"json"' , ',$(document).trigger("comments.reloaded")' + '},"json"')
+			eval("window['xpanel_refresh_button_click'] = " + refreshHandler)
+			$('.refresh').off('click').on('click', window['xpanel_refresh_button_click'])
 
 			Object.keys(modules).forEach(function (key) {
 				var module = modules[key];
