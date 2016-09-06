@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.10
+// @version     2.2.9
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +37,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.2.10';
+	var version = '2.2.9';
 
 	// modules describe
 	var modules = {}
@@ -476,10 +476,15 @@
 
 			// main
 
-			var refreshHandler = window['xpanel_refresh_button_click'].toString()
-				.replace('},"json"' , ',$(document).trigger("comments.reloaded")' + '},"json"')
-			eval("window['xpanel_refresh_button_click'] = " + refreshHandler)
-			$('.refresh').off('click').on('click', window['xpanel_refresh_button_click'])
+			$('#xpanel').children('.refresh').click(function () {
+				var $el = $(this)
+
+				setTimeout(delayedStart.bind(this, function () {
+					return !$el.hasClass('loading')
+				}, function () {
+					$(document).trigger('comments.reloaded')
+				}), 300)
+			})
 
 			Object.keys(modules).forEach(function (key) {
 				var module = modules[key];
