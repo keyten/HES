@@ -1,50 +1,12 @@
 @media screen {
 
-	.hes-menu a[data-state]::after {
+	.dropdown_hes {
+		margin-left: 12px;
+	}
+
+	.n-dropdown-menu_hes a[data-state]::after {
 		content: ": " attr(data-state);
 	}
-
-	#settings_tab .line + .title.menu-hidden {
-		color: gray;
-	}
-
-	#settings_tab .line + .title.menu-hidden + .menu {
-		display: none;
-	}
-
-	/* Settings styles for < 700px height */
-	@media screen and (max-height: 700px) {
-
-		#navbar .nav_tabs_content {
-			overflow: visible;
-		}
-
-		#navbar .nav_tabs_content #settings_tab {
-			width: 400px;
-		}
-
-		#settings_tab .title,
-		#settings_tab .menu {
-			box-sizing: border-box;
-			width: 50%;
-		}
-
-		#settings_tab .line {
-			display: none;
-		}
-
-		#settings_tab .line + .title,
-		#settings_tab .line + .title + .menu {
-			position: absolute;
-			right: 0;
-			top: 0;
-		}
-
-		#settings_tab .line + .title + .menu {
-			top: 49.8px;
-		}
-	}
-
 
 	/* Unchecked links */
 	.html_format.message a.unchecked_link,
@@ -53,16 +15,16 @@
 	}
 
 	/* Hiding posts */
-  .posts.hide .post[class*=hide-post] {
-	  display: none !important
-  }
-  
-  .posts.hide-partially .post[class*=hide-post] .hubs,
-  .posts.hide-partially .post[class*=hide-post] .content,
-  .posts.hide-partially .post[class*=hide-post] .megapost-head__hubs,
-  .posts.hide-partially .post[class*=hide-post] .article__body {
-	  display: none !important
-  }
+	.posts.hide .post[class*=hide-post] {
+		display: none !important
+	}
+
+	.posts.hide-partially .post[class*=hide-post] .hubs,
+	.posts.hide-partially .post[class*=hide-post] .content,
+	.posts.hide-partially .post[class*=hide-post] .megapost-head__hubs,
+	.posts.hide-partially .post[class*=hide-post] .article__body {
+		display: none !important
+	}
 
 	.posts.hide-partially .post[class*=hide-post] .megapost-head__title,
 	.posts.hide-partially .post[class*=hide-post] .megapost-head__title-link {
@@ -82,9 +44,10 @@
 		height: 180px !important
 	}
 
-  .g-icon-tex::before {
-	  content: 'TeX';
-	  font-family: Verdana, sans-serif;
-  }
+	/* mathjax editor button */
+	.g-icon-tex::before {
+		content: 'TeX';
+		font-family: Verdana, sans-serif;
+	}
 
 }

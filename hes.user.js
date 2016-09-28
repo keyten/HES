@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.2.9
+// @version     2.3.0
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +37,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.2.9';
+	var version = '2.3.0';
 
 	// modules describe
 	var modules = {}
@@ -452,6 +452,24 @@
 		}
 	})
 
+	delayedStart(function () {
+		return document.querySelector('.main-navbar__section_right .dropdown_user');
+	}, function () {
+		var dropdownUser = document.querySelector('.main-navbar__section_right .dropdown_user');
+		var dropdown = document.createElement('div');
+		dropdown.className = 'dropdown dropdown_hes';
+		var dropdownHTML = '\
+		<button type="button" class="btn btn_x-large btn_navbar_hes-dropdown" \
+				data-toggle="dropdown" aria-haspopup="true" role="button" \
+				aria-expanded="false" tabindex="0" title="Version: ' + version + '">HES</button> \
+		<div class="dropdown-container dropdown-container_white" aria-hidden="true" role="menu"> \
+			<ul class="n-dropdown-menu n-dropdown-menu_hes"></ul> \
+		</div> \
+	';
+		dropdown.innerHTML = dropdownHTML;
+		document.querySelector('.main-navbar__section_right').insertBefore(dropdown, dropdownUser)
+	})
+
 	window.addEventListener('load', delayedStart(function () { return window.jQuery }, function () {
 		var $ = window.jQuery;
 		$(function () {
@@ -462,17 +480,7 @@
 				$s.text(data).appendTo('head');
 			});
 
-			// create config menu layout
-			var $tab = $('#settings_tab');
-			var $title = $('<div class="title">HES</div>');
-			var $menu = $('<div class="menu hes-menu"></div>');
-			$tab.append('<div class="line"></div>').append($title).append($menu);
-
-			// title & menu hiding
-			$title.attr('title', 'Version: ' + version);
-			$title.click(function() {
-				$(this).toggleClass('menu-hidden')
-			});
+			var $menu = $('.n-dropdown-menu_hes');
 
 			// main
 
@@ -503,7 +511,9 @@
 
 				if (!(states || []).length) return; // There is no buttons for module
 
-				var $button = $('<a href="javascript://">' + module.button.text + '</a>')
+				var $menuItem = $('<li class="n-dropdown-menu__item" />');
+				var $button = $('<a href="#" class="n-dropdown-menu__item-link">' + module.button.text + '</a>');
+				$menuItem.append($button);
 				if (states.length > 1) $button.attr('data-state', state);
 
 				$button.click(function () {
@@ -516,7 +526,8 @@
 					if (module.commentsReloaded) {
 						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module))
 					}
-				}).appendTo($menu);
+				});
+				$menu.append($menuItem);
 			})
 		})
 	}))
