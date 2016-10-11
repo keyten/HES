@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.0
+// @version     2.3.1
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -292,13 +292,14 @@
 			var styles;
 			var s = document.createElement('style');
 			s.id = module.id;
+			s.setAttribute('media', 'screen');
 			document.head.appendChild(s);
 
 			if (styles = localStorage.getItem(module.id)) {
 				s.textContent = styles;
 			}
 
-			ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
+			ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/source.css', function (data) {
 				localStorage.setItem(module.id, data);
 				s.textContent = data;
 			});
