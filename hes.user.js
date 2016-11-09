@@ -624,7 +624,7 @@ exports.default = {
 			s.textContent = styles;
 		}
 
-		Utils.ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/userstyle.css', function (data) {
+		Utils.ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/source.css', function (data) {
 			localStorage.setItem(_this.id, data);
 			s.textContent = data;
 		});
