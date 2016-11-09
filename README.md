@@ -3,7 +3,7 @@
 
 [Установить](https://raw.githubusercontent.com/keyten/HES/master/hes.user.js) (нужен Greasemonkey или Tampermonkey).
 
-![Скриншот](https://habrastorage.org/files/d1c/3c9/b25/d1c3c9b2532e4158ac6c23317ad04d42.png)
+![Скриншот](https://habrastorage.org/files/d2d/0f3/07e/d2d0f307ecec48609165995509b1d006.png)
 
 ### Текущие возможности:
  - Night Mode ( использован стиль от WaveCut и extempl ).
