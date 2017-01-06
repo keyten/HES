@@ -23,7 +23,7 @@
 		display: none !important
 	}
 
-	.posts.hide-img .post .content oembed .oembed {
+	.posts.hide-img .post .content .oembed {
 		display: none !important
 	}
 
