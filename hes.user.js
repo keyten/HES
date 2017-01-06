@@ -64,6 +64,25 @@
 		}
 	}
 
+	modules.hideImgs = {
+		config: {state: 'off'},
+		documentLoaded: function () {
+			this.button.states[this.config.state].call(this)
+		},
+		button: {
+			text: 'Hide images',
+			states: {
+				on: function () {
+					this.button.states.off();
+					$('.posts').addClass('hide-img')
+				},
+				off: function () {
+					$('.posts').removeClass('hide-img')
+				}
+			}
+		}
+	}
+
 	modules.hideAuthors = {
 		config: {
 			list: [
@@ -476,7 +495,7 @@
 		$(function () {
 
 			// load main styles
-			ajax('https://rawgit.com/keyten/HES/master/style.css', function (data) {
+			ajax('https://rawgit.com/doz10us/HES/master/style.css', function (data) {
 				var $s = $('<style id="hes_mainstyles"></style>')
 				$s.text(data).appendTo('head');
 			});

@@ -19,6 +19,10 @@
 		display: none !important
 	}
 
+	.posts.hide-img .post[class*=hide-post] .content img {
+		display: none !important
+	}
+
 	.posts.hide-partially .post[class*=hide-post] .hubs,
 	.posts.hide-partially .post[class*=hide-post] .content,
 	.posts.hide-partially .post[class*=hide-post] .megapost-head__hubs,
