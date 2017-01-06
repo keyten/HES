@@ -495,7 +495,7 @@
 		$(function () {
 
 			// load main styles
-			ajax('https://rawgit.com/doz10us/HES/hide-img/style.css', function (data) {
+			ajax('https://rawgit.com/keyten/HES/master/style.css', function (data) {
 				var $s = $('<style id="hes_mainstyles"></style>')
 				$s.text(data).appendTo('head');
 			});
