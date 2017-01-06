@@ -19,7 +19,7 @@
 		display: none !important
 	}
 
-	.posts.hide-img .post[class*=hide-post] .content img {
+	.posts.hide-img .post .content img {
 		display: none !important
 	}
 
