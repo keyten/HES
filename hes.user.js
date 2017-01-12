@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.1
+// @version     2.3.3
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
