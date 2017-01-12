@@ -371,6 +371,9 @@
 					this.scriptLoaded()
 					this.documentLoaded()
 				},
+				'on, w/o images': function () {
+					$('.image-inverted').removeClass('image-inverted')
+				},
 				off: function () {
 					$('style#hes_nmstyle').remove()
 				}
