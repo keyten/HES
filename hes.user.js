@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.3
+// @version     2.3.4
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +37,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.3.0';
+	var version = '2.3.4';
 
 	// modules describe
 	var modules = {}
@@ -341,16 +341,18 @@
 						return $el.addClass('image-inverted')
 					}
 
-					var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+					if (config.nightMode.state === 'on') {
+						var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
-					resemble(link).onComplete(function (data) {
-						if (data.brightness < 10 && data.alpha > 60 ||
-							  data.brightness < 6  && data.alpha > 30 ||
-							  data.brightness < 1 ||
-								data.brightness > 87 && data.white > 60) {
-							$el.addClass('image-inverted')
-						}
-					})
+						resemble(link).onComplete(function (data) {
+							if (data.brightness < 10 && data.alpha > 60 ||
+									data.brightness < 6 && data.alpha > 30 ||
+									data.brightness < 1 ||
+									data.brightness > 87 && data.white > 60) {
+								$el.addClass('image-inverted')
+							}
+						})
+					}
 				})
 			}
 
@@ -372,7 +374,13 @@
 					this.documentLoaded()
 				},
 				'on, w/o images': function () {
-					$('.image-inverted').removeClass('image-inverted')
+					var $inverted = $('.image-inverted')
+					if ($inverted.length) {
+						$inverted.removeClass('image-inverted')
+						return // switching after page loaded TODO `loaded` flag
+					}
+					this.scriptLoaded()
+					this.documentLoaded()
 				},
 				off: function () {
 					$('style#hes_nmstyle').remove()
