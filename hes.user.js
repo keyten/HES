@@ -35,53 +35,53 @@
  */
 
 (function (window) {
-	"use strict"
+	"use strict";
 
 	var version = '2.3.4';
 
 	// modules describe
-	var modules = {}
+	var modules = {};
 	modules.hidePosts = {
 		config: {state: 'partially'},
 		documentLoaded: function () {
-			this.button.states[this.config.state].call(this)
+			this.button.states[this.config.state].call(this);
 		},
 		button: {
 			text: 'Hide posts',
 			states: {
 				on: function () {
 					this.button.states.off();
-					$('.posts').addClass('hide')
+					$('.posts').addClass('hide');
 				},
 				off: function () {
-					$('.posts').removeClass('hide hide-partially')
+					$('.posts').removeClass('hide hide-partially');
 				},
 				partially: function () {
 					this.button.states.off();
-					$('.posts').addClass('hide-partially')
+					$('.posts').addClass('hide-partially');
 				}
 			}
 		}
-	}
+	};
 
 	modules.hideImgs = {
 		config: {state: 'off'},
 		documentLoaded: function () {
-			this.button.states[this.config.state].call(this)
+			this.button.states[this.config.state].call(this);
 		},
 		button: {
 			text: 'Hide images',
 			states: {
 				on: function () {
 					this.button.states.off();
-					$('.posts').addClass('hide-img')
+					$('.posts').addClass('hide-img');
 				},
 				off: function () {
-					$('.posts').removeClass('hide-img')
+					$('.posts').removeClass('hide-img');
 				}
 			}
 		}
-	}
+	};
 
 	modules.hideAuthors = {
 		config: {
@@ -110,14 +110,14 @@
 				on: function () {
 					var list = (config.hideAuthors.list || []).join(', ');
 					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (auth == null)
+					if (auth === null)
 						return;
 					config.hideAuthors.list = auth.replace(/\s/g, '').split(',');
 					this.updatePosts();
 				}
 			}
 		}
-	}
+	};
 
 	modules.hideHubs = {
 		config: {
@@ -139,10 +139,10 @@
 			var module = this;
 
 			$('.posts .post').removeClass('hide-post-h').filter(function () {
-				var hubNames = $('.hub, .megapost-head__hubs .list__item-link', this).map(module.getName).get()
+				var hubNames = $('.hub, .megapost-head__hubs .list__item-link', this).map(module.getName).get();
 				return config.hideHubs.list.some(function (hub) {
-					return ~hubNames.indexOf(hub)
-				})
+					return ~hubNames.indexOf(hub);
+				});
 			}).addClass('hide-post-h');
 		},
 		button: {
@@ -158,7 +158,7 @@
 				}
 			}
 		}
-	}
+	};
 
 	modules.hideFlows = {
 		config: {
@@ -176,11 +176,11 @@
 			this.updatePosts();
 		},
 		updatePosts: function () {
-			var module = this
+			var module = this;
 
 			$('.posts .post').removeClass('hide-post-f').filter(function () {
 
-				var flow = module.getName.call($(this).find('.post__flow'))
+				var flow = module.getName.call($(this).find('.post__flow'));
 				return ~config.hideFlows.list.indexOf(flow);
 			}).addClass('hide-post-f');
 		},
@@ -190,14 +190,14 @@
 				on: function () {
 					var list = (config.hideFlows.list || []).join(', ');
 					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (auth == null)
+					if (auth === null)
 						return;
 					config.hideFlows.list = auth.replace(/\s/g, '').split(',');
 					this.updatePosts();
 				}
 			}
 		}
-	}
+	};
 
 	modules.mathjax = {
 		config: {state: 'on'},
@@ -213,7 +213,7 @@
 					var code = decodedURL.replace(/^https?:\/\/tex\.s2cms\.ru\/(svg|png)\/(\\inline)?/, '')
 						.replace(/^https?:\/\/latex\.codecogs\.com\/gif\.latex\?(\\dpi\{\d+\})?/, '')
 						.replace(/\\(right|left)\s([\[\{\]\}(|)])/g, "\\$1$2") // мерджим ошибочные резделители
-						.replace(/\\(right|left)\s/g, '') // игнорируем пустые разделители
+						.replace(/\\(right|left)\s/g, ''); // игнорируем пустые разделители
 
 					// проверяем, использовать $ или $$
 					code = '$tex' + code + '$';
@@ -222,45 +222,45 @@
 					}
 
 					// скрываем картинку и выводим TeX
-					$this.hide().after('<span>' + code + '</span>')
+					$this.hide().after('<span>' + code + '</span>');
 				});
-			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
+			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru');
 		},
 
 		addEditorButton: function () {
-			if ($('.editor-btn-latex').length) { return }
+			if ($('.editor-btn-latex').length) { return; }
 
 			var button = $("<a class=\"btn editor-btn-tex\" title=\"Преобразовать выделенное в TeX\" \
 			href=\"//tex.s2cms.ru/g/TeX\" target=\"_blank\" tabindex=\"-1\">\
-			<span class=\"g-icon g-icon-tex\"></span></a>")
+			<span class=\"g-icon g-icon-tex\"></span></a>");
 
-			$('.wysiwyg_wrapper .help_holder').before(button)
+			$('.wysiwyg_wrapper .help_holder').before(button);
 
 			button.click(function (e) {
-				e.preventDefault()
-				e.stopPropagation()
+				e.preventDefault();
+				e.stopPropagation();
 
-				var textarea = $('#text_textarea, #comment_text')[0]
+				var textarea = $('#text_textarea, #comment_text')[0];
 
-				var val
+				var val;
 				if (textarea.selectionStart == textarea.selectionEnd) {
-					val = window.prompt('Выберите формулу в редакторе и нажмите кнопку, либо же введите формулу ниже:')
+					val = window.prompt('Выберите формулу в редакторе и нажмите кнопку, либо же введите формулу ниже:');
 				} else {
-					val = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+					val = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
 				}
 
-				val = trim(val)
+				val = trim(val);
 
-				if (!val) { return }
+				if (!val) { return; }
 
-				var img = "<img src=\"//tex.s2cms.ru/svg/" + encodeURIComponent(val) + "\" alt=\"" + val.replace(/"/g, '\\"')+ "\" />"
+				var img = "<img src=\"//tex.s2cms.ru/svg/" + encodeURIComponent(val) + "\" alt=\"" + val.replace(/"/g, '\\"')+ "\" />";
 
-				var taArr = textarea.value.split('')
-				taArr.splice(textarea.selectionStart, textarea.selectionEnd - textarea.selectionStart, img)
+				var taArr = textarea.value.split('');
+				taArr.splice(textarea.selectionStart, textarea.selectionEnd - textarea.selectionStart, img);
 
-				textarea.value = taArr.join('')
+				textarea.value = taArr.join('');
 
-			})
+			});
 		},
 
 		documentLoaded: function () {
@@ -280,28 +280,28 @@
 						$span.prev('img').show(); \
 						$span.remove() \
 					}); \
-				</script>").appendTo('head')
+				</script>").appendTo('head');
 			}
 
 			// заменяем картинки на формулы
-			this.replaceTeX()
+			this.replaceTeX();
 
-			this.addEditorButton()
+			this.addEditorButton();
 		},
 
 		commentsReloaded: function () {
-			this.replaceTeX('.comment-item.is_new + .message')
+			this.replaceTeX('.comment-item.is_new + .message');
 		},
 		button: {
 			text: 'MathJax',
 			states: {
 				on: function () {
-					this.documentLoaded()
+					this.documentLoaded();
 				},
 				off: null
 			}
 		}
-	}
+	};
 
 	modules.nightMode = {
 		config: {state: 'off'},
@@ -314,7 +314,7 @@
 			s.setAttribute('media', 'screen');
 			document.head.appendChild(s);
 
-			if (styles = localStorage.getItem(module.id)) {
+			if ((styles = localStorage.getItem(module.id))) {
 				s.textContent = styles;
 			}
 
@@ -324,8 +324,8 @@
 			});
 
 			module.nmInterval = setInterval(function () {
-				document.head.appendChild(document.getElementById(module.id))
-			}, 200)
+				document.head.appendChild(document.getElementById(module.id));
+			}, 200);
 		},
 		documentLoaded: function () {
 			if (this.nmInterval) {
@@ -338,56 +338,56 @@
 					var $el = $(this);
 
 					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
-						return $el.addClass('image-inverted')
+						return $el.addClass('image-inverted');
 					}
 
 					if (config.nightMode.state === 'on') {
-						var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+						var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://');
 
 						resemble(link).onComplete(function (data) {
 							if (data.brightness < 10 && data.alpha > 60 ||
 									data.brightness < 6 && data.alpha > 30 ||
 									data.brightness < 1 ||
 									data.brightness > 87 && data.white > 60) {
-								$el.addClass('image-inverted')
+								$el.addClass('image-inverted');
 							}
-						})
+						});
 					}
-				})
-			}
+				});
+			};
 
 			if (window['resemble']) {
-				return _process()
+				return _process();
 			}
 
 			$.getScript('https://rawgit.com/extempl/Resemble.js/master/resemble.js', function () {
 				delayedStart(function () {
-					return window['resemble']
-				}, _process)
-			})
+					return window['resemble'];
+				}, _process);
+			});
 		},
 		button: {
 			text: 'Night mode',
 			states: {
 				on: function () {
-					this.scriptLoaded()
-					this.documentLoaded()
+					this.scriptLoaded();
+					this.documentLoaded();
 				},
 				'on, w/o images': function () {
-					var $inverted = $('.image-inverted')
+					var $inverted = $('.image-inverted');
 					if ($inverted.length) {
-						$inverted.removeClass('image-inverted')
-						return // switching after page loaded TODO `loaded` flag
+						$inverted.removeClass('image-inverted');
+						return; // switching after page loaded TODO `loaded` flag
 					}
-					this.scriptLoaded()
-					this.documentLoaded()
+					this.scriptLoaded();
+					this.documentLoaded();
 				},
 				off: function () {
-					$('style#hes_nmstyle').remove()
+					$('style#hes_nmstyle').remove();
 				}
 			}
 		}
-	}
+	};
 
 	modules.hideUserInfo = {
 		config: {state: 'off'},
@@ -398,12 +398,12 @@
 			text: 'Hide UserInfo',
 			states: {
 				on: function () {
-					this.documentLoaded()
+					this.documentLoaded();
 				},
 				off: null
 			}
 		}
-	}
+	};
 
 	modules.replaceLinks = {
 		config: {state: 'on'},
@@ -413,50 +413,50 @@
 		replaceLinks: function (comments) {
 			var module = this;
 			$(comments).each(function (i, comment) {
-				var depth = 5 // максимальная глубина вложенности
-				var nodeList = []
+				var depth = 5; // максимальная глубина вложенности
+				var nodeList = [];
 				var _seekAndReplace = function (node, depth) {
 					if (!--depth) return;
 					Array.prototype.forEach.call(node.childNodes, function (node) {
 						if (node.nodeType == 3) { // если текст - искать/заменять
 							if (!$(node).parents('a, code').length) { // если среди родителей нет ссылки и кода
 								if ((node.nodeValue.match(module.linkReg) || []).length) {
-									nodeList.push(node)
+									nodeList.push(node);
 								}
 							}
 						} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
-							_seekAndReplace(node, depth)
+							_seekAndReplace(node, depth);
 						}
-					})
-				}
-				_seekAndReplace(comment, depth)
+					});
+				};
+				_seekAndReplace(comment, depth);
 
 				nodeList.forEach(function (node) {
-					$(node).replaceWith(node.nodeValue.replace(module.linkReg, module.template))
-				})
-			})
+					$(node).replaceWith(node.nodeValue.replace(module.linkReg, module.template));
+				});
+			});
 		},
 		documentLoaded: function () {
-			this.replaceLinks('.comment-item + .message')
+			this.replaceLinks('.comment-item + .message');
 		},
 		commentsReloaded: function () {
-			this.replaceLinks('.comment-item.is_new + .message')
+			this.replaceLinks('.comment-item.is_new + .message');
 		},
 		button: {
 			text: 'Clickable links',
 			states: {
 				on: function () {
-					this.documentLoaded()
+					this.documentLoaded();
 				},
 				off: null
 			}
 		}
-	}
+	};
 
 
 	//======================================================================================
 	// main config
-	var config = {}
+	var config = {};
 
 	Object.keys(modules).forEach(function (key) {
 		config[key] = modules[key].config;
@@ -467,21 +467,21 @@
 	// подгружаем настройки из localStorage
 	var updateLSConfig = function () {
 		return localStorage.setItem('hes_config', JSON.stringify(config));
-	}
+	};
 	var citem;
-	if (citem = localStorage.getItem('hes_config')) {
+	if ((citem = localStorage.getItem('hes_config'))) {
 		citem = JSON.parse(citem);
 		extend(config, citem);
 	}
-	else updateLSConfig()
+	else updateLSConfig();
 
 	// initial start
 	Object.keys(modules).forEach(function (key) {
 		var module = modules[key];
 		if (~['on', 'partially'].indexOf(config[key].state)) {
-			(module.scriptLoaded || _f).call(module)
+			(module.scriptLoaded || _f).call(module);
 		}
-	})
+	});
 
 	delayedStart(function () {
 		return document.querySelectorAll('.main-navbar__section_right .dropdown_user, .main-navbar__section_right .btn_navbar_registration').length;
@@ -499,21 +499,21 @@
 	';
 		dropdown.innerHTML = dropdownHTML;
 		var rightMenu = document.querySelector('.main-navbar__section_right');
-		
-		if (dropdownUser) {
-			rightMenu.insertBefore(dropdown, dropdownUser)
-		} else {
-			rightMenu.appendChild(dropdown)
-		}
-	})
 
-	window.addEventListener('load', delayedStart(function () { return window.jQuery }, function () {
+		if (dropdownUser) {
+			rightMenu.insertBefore(dropdown, dropdownUser);
+		} else {
+			rightMenu.appendChild(dropdown);
+		}
+	});
+
+	window.addEventListener('load', delayedStart(function () { return window.jQuery; }, function () {
 		var $ = window.jQuery;
 		$(function () {
 
 			// load main styles
 			ajax('https://rawgit.com/keyten/HES/master/style.css', function (data) {
-				var $s = $('<style id="hes_mainstyles"></style>')
+				var $s = $('<style id="hes_mainstyles"></style>');
 				$s.text(data).appendTo('head');
 			});
 
@@ -522,18 +522,18 @@
 			// main
 
 			$('#xpanel').children('.refresh').click(function () {
-				var $el = $(this)
+				var $el = $(this);
 
 				setTimeout(delayedStart.bind(this, function () {
-					return !$el.hasClass('loading')
+					return !$el.hasClass('loading');
 				}, function () {
-					$(document).trigger('comments.reloaded')
-				}), 300)
-			})
+					$(document).trigger('comments.reloaded');
+				}), 300);
+			});
 
 			Object.keys(modules).forEach(function (key) {
 				var module = modules[key];
-				var states = Object.keys(module.button.states)
+				var states = Object.keys(module.button.states);
 
 				var state = config[key].state || states[0];
 				if (~['on', 'partially'].indexOf(state)) {
@@ -542,7 +542,7 @@
 
 					// comments reloaded event subscription
 					if (module.commentsReloaded) {
-						$(document).on('comments.reloaded', module.commentsReloaded.bind(module))
+						$(document).on('comments.reloaded', module.commentsReloaded.bind(module));
 					}
 				}
 
@@ -558,17 +558,17 @@
 					var newState = states[stateIndex + 1] || states[0];
 					if (states.length > 1) $(this).attr('data-state', newState);
 					config[key].state = newState;
-					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)()
+					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)();
 					updateLSConfig();
 					if (module.commentsReloaded) {
-						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module))
+						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module));
 					}
 				});
 				$menu.append($menuItem);
-			})
-		})
-	}))
-})(window)
+			});
+		});
+	}));
+})(window);
 
 
 // Utils
@@ -585,7 +585,7 @@ function ajax(url, callback) {
 }
 
 function trim(str) {
-	return (str || '').replace(/^\s+|\s+$/g, '')
+	return (str || '').replace(/^\s+|\s+$/g, '');
 }
 
 // http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
@@ -605,9 +605,10 @@ function extend(destination, source) {
 
 function delayedStart(expr, callback) {
 	if (!expr()) {
-		return setTimeout(delayedStart.bind(this, expr, callback), 100)
+		return setTimeout(delayedStart.bind(this, expr, callback), 100);
 	}
-	callback()
+	callback();
 }
 
 function _f() {}
+
