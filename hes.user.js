@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.5
+// @version     2.3.6
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -317,7 +317,7 @@
 				document.insertBefore(s, layout)
 			}
 			else {
-				document.body.appendChild(s)
+				(document.body || document.head).appendChild(s)
 			}
 
 			if (styles = localStorage.getItem(module.id)) {
