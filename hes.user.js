@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.4
+// @version     2.3.5
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -312,7 +312,13 @@
 			var s = document.createElement('style');
 			s.id = module.id;
 			s.setAttribute('media', 'screen');
-			document.head.appendChild(s);
+			var layout = document.querySelector('.layout')
+			if (layout) {
+				document.insertBefore(s, layout)
+			}
+			else {
+				document.body.appendChild(s)
+			}
 
 			if (styles = localStorage.getItem(module.id)) {
 				s.textContent = styles;
@@ -324,7 +330,10 @@
 			});
 
 			module.nmInterval = setInterval(function () {
-				document.head.appendChild(document.getElementById(module.id))
+				var layout = document.querySelector('.layout')
+				if (layout) {
+					document.insertBefore(s, layout)
+				}
 			}, 200)
 		},
 		documentLoaded: function () {
