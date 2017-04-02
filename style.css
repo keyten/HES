@@ -58,4 +58,34 @@
 		font-family: Verdana, sans-serif;
 	}
 
+  .image-wrapper {
+	  position: relative;
+	  display: inline-block;
+  }
+
+  .image-wrapper .inverse-toggle {
+	  position: absolute;
+	  right: 10px;
+	  top: 10px;
+	  opacity: 0;
+	  transition: all .3s ease-in-out;
+	  width: 1em;
+	  height: 1em;
+	  display: inline-block;
+	  cursor: pointer;
+	  color: black;
+  }
+
+	.image-wrapper:hover .inverse-toggle {
+		opacity: .3;
+	}
+
+	.image-wrapper .inverse-toggle:hover {
+		opacity: 1;
+	}
+
+  .image-wrapper .image-inverted + .inverse-toggle {
+	  color: white;
+  }
+
 }

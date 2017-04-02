@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.6
+// @version     2.3.7
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -350,8 +350,12 @@
 						return $el.addClass('image-inverted')
 					}
 
-					if (config.nightMode.state === 'on') {
-						var link = $el.attr('src').replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+					if (config.nightMode.state === 'on') { // TODO move images out of nightmode module
+						var $wrapper = $('<div class="image-wrapper" />')
+						var link = $el.wrap($wrapper).attr('src')
+							.replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
+
+						$el.after('<span class="inverse-toggle">◐</span>')
 
 						resemble(link).onComplete(function (data) {
 							if (data.brightness < 10 && data.alpha > 60 ||
@@ -374,6 +378,12 @@
 					return window['resemble']
 				}, _process)
 			})
+
+			$(document).off('click', '.inverse-toggle')
+				.on('click', '.inverse-toggle', function (e) {
+				$(e.target).prev('img').toggleClass('image-inverted')
+			})
+
 		},
 		button: {
 			text: 'Night mode',
