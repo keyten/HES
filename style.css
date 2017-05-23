@@ -51,6 +51,10 @@
 	.posts.hide-partially .post[class*=hide-post] .megapost-cover__img {
 		height: 180px !important
 	}
+	
+	.fb_iframe_widget {
+		background: #fff;
+	}
 
 	/* mathjax editor button */
 	.g-icon-tex::before {
