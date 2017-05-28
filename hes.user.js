@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.7
+// @version     2.3.8
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -314,7 +314,7 @@
 			s.setAttribute('media', 'screen');
 			var layout = document.querySelector('.layout')
 			if (layout) {
-				document.insertBefore(s, layout)
+				document.body.insertBefore(s, layout)
 			}
 			else {
 				(document.body || document.head).appendChild(s)
