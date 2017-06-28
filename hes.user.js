@@ -199,6 +199,26 @@
 		}
 	}
 
+	modules.hideFlowNames = {
+		config: {state: 'off'},
+		documentLoaded: function () {
+			this.button.states[this.config.state].call(this);
+		},
+		button: {
+			text: 'Hide flow names',
+			states: {
+				on: function() {
+					$('.post__flow').hide();
+					$('.post__title-arrow').hide();
+				},
+				off : function() {
+					$('.post__flow').show();
+					$('.post__title-arrow').show();
+				}
+			}
+		}
+	}
+
 	modules.mathjax = {
 		config: {state: 'on'},
 
