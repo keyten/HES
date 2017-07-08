@@ -332,7 +332,7 @@
 			module.nmInterval = setInterval(function () {
 				var layout = document.querySelector('.layout')
 				if (layout) {
-					document.insertBefore(s, layout)
+					document.body.insertBefore(s, layout)
 				}
 			}, 200)
 		},
@@ -343,7 +343,7 @@
 			}
 
 			var _process = function () {
-				$('.content img[src]:visible').each(function () {
+				$('.content img[src]').each(function () {
 					var $el = $(this);
 
 					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
