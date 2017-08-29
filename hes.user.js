@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.8
+// @version     2.3.9
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -224,43 +224,7 @@
 					// скрываем картинку и выводим TeX
 					$this.hide().after('<span>' + code + '</span>')
 				});
-			$.getScript('//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
-		},
-
-		addEditorButton: function () {
-			if ($('.editor-btn-latex').length) { return }
-
-			var button = $("<a class=\"btn editor-btn-tex\" title=\"Преобразовать выделенное в TeX\" \
-			href=\"//tex.s2cms.ru/g/TeX\" target=\"_blank\" tabindex=\"-1\">\
-			<span class=\"g-icon g-icon-tex\"></span></a>")
-
-			$('.wysiwyg_wrapper .help_holder').before(button)
-
-			button.click(function (e) {
-				e.preventDefault()
-				e.stopPropagation()
-
-				var textarea = $('#text_textarea, #comment_text')[0]
-
-				var val
-				if (textarea.selectionStart == textarea.selectionEnd) {
-					val = window.prompt('Выберите формулу в редакторе и нажмите кнопку, либо же введите формулу ниже:')
-				} else {
-					val = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
-				}
-
-				val = trim(val)
-
-				if (!val) { return }
-
-				var img = "<img src=\"//tex.s2cms.ru/svg/" + encodeURIComponent(val) + "\" alt=\"" + val.replace(/"/g, '\\"')+ "\" />"
-
-				var taArr = textarea.value.split('')
-				taArr.splice(textarea.selectionStart, textarea.selectionEnd - textarea.selectionStart, img)
-
-				textarea.value = taArr.join('')
-
-			})
+			$.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
 		},
 
 		documentLoaded: function () {
@@ -285,8 +249,6 @@
 
 			// заменяем картинки на формулы
 			this.replaceTeX()
-
-			this.addEditorButton()
 		},
 
 		commentsReloaded: function () {
@@ -343,7 +305,7 @@
 			}
 
 			var _process = function () {
-				$('.content img[src]').each(function () {
+				$('.comment__message img[src], .post__text img[src]').each(function () {
 					var $el = $(this);
 
 					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
