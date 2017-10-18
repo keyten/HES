@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.9
+// @version     2.3.10
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -343,6 +343,7 @@
 
 			$(document).off('click', '.inverse-toggle')
 				.on('click', '.inverse-toggle', function (e) {
+				e.preventDefault()
 				$(e.target).prev('img').toggleClass('image-inverted')
 			})
 
