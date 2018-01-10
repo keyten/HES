@@ -12,7 +12,7 @@
 // @match       https://habrahabr.ru/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.3.10
+// @version     2.4.11
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -317,6 +317,8 @@
 						var link = $el.wrap($wrapper).attr('src')
 							.replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
+						$el.parent().css('float', $el.css('float'))
+
 						$el.after('<span class="inverse-toggle">◐</span>')
 
 						resemble(link).onComplete(function (data) {
@@ -435,6 +437,37 @@
 		}
 	}
 
+	modules.timeForReading = {
+		config: {state: 'on'},
+		documentLoaded: function () {
+
+			var $article = $('.post__body_full')
+
+			var _process = function () {
+				$article.readingTime({lang: 'ru'})
+			}
+
+			$article.prepend('<div style="float:right">🕝 <span class="eta" /> на прочтение</div>')
+			$article.css('margin-top', '-1em')
+			$article.find('.post__text').css('clear', 'both')
+
+			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingTime.js', function () {
+				delayedStart(function () {
+					return window['resemble']
+				}, _process)
+			})
+		},
+		button: {
+			text: 'Time to read',
+			states: {
+				on: function () {
+					this.documentLoaded()
+				},
+				off: null
+			}
+		}
+	}
+
 
 	//======================================================================================
 	// main config
@@ -489,7 +522,7 @@
 		}
 	})
 
-	window.addEventListener('load', delayedStart(function () { return window.jQuery }, function () {
+	window.addEventListener('load', delayedStart.bind(this, function () { return window.jQuery }, function () {
 		var $ = window.jQuery;
 		$(function () {
 
