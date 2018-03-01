@@ -451,7 +451,7 @@
 			$article.css('margin-top', '-1em')
 			$article.find('.post__text').css('clear', 'both')
 
-			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingTime.js', function () {
+			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingtime.js', function () {
 				delayedStart(function () {
 					return window['resemble']
 				}, _process)
