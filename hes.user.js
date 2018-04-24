@@ -3,12 +3,12 @@
 // @namespace   http://github.com/keyten/hes
 // @description Habrahabr Enhancement Suite
 // @include     https://geektimes.com/*
-// @include     https://habrahabr.com/*
+// @include     https://habr.com/*
 // @match       https://geektimes.com/*
-// @match       https://habrahabr.com/*
+// @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.5.12
+// @version     2.5.13
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -33,7 +33,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.5.12';
+	var version = '2.5.13';
 
 	// modules describe
 	var modules = {}
