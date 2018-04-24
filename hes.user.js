@@ -2,17 +2,13 @@
 // @name        HES
 // @namespace   http://github.com/keyten/hes
 // @description Habrahabr Enhancement Suite
-// @include     http://geektimes.ru/*
-// @include     http://habrahabr.ru/*
-// @include     https://geektimes.ru/*
-// @include     https://habrahabr.ru/*
-// @match       http://geektimes.ru/*
-// @match       http://habrahabr.ru/*
-// @match       https://geektimes.ru/*
-// @match       https://habrahabr.ru/*
+// @include     https://geektimes.com/*
+// @include     https://habrahabr.com/*
+// @match       https://geektimes.com/*
+// @match       https://habrahabr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.4.12
+// @version     2.5.12
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -37,7 +33,7 @@
 (function (window) {
 	"use strict"
 
-	var version = '2.3.4';
+	var version = '2.5.12';
 
 	// modules describe
 	var modules = {}
