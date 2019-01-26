@@ -8,7 +8,7 @@
 // @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.5.13
+// @version     2.6.13
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -273,8 +273,7 @@
 			var layout = document.querySelector('.layout')
 			if (layout) {
 				document.body.insertBefore(s, layout)
-			}
-			else {
+			} else {
 				(document.body || document.head).appendChild(s)
 			}
 
@@ -299,6 +298,28 @@
 				clearInterval(this.nmInterval);
 				this.nmInterval = null;
 			}
+		},
+		button: {
+			text: 'Night mode',
+			states: {
+				on: function () {
+					this.scriptLoaded()
+					this.documentLoaded()
+				},
+				off: function () {
+					$('style#hes_nmstyle').remove()
+				}
+			}
+		}
+	}
+
+	modules.invertImages = {
+		config: {state: 'off'},
+		documentLoaded: function () {
+			if (this.nmInterval) {
+				clearInterval(this.nmInterval);
+				this.nmInterval = null;
+			}
 
 			var _process = function () {
 				$('.comment__message img[src], .post__text img[src]').each(function () {
@@ -308,7 +329,7 @@
 						return $el.addClass('image-inverted')
 					}
 
-					if (config.nightMode.state === 'on') { // TODO move images out of nightmode module
+					if (config.invertImages.state === 'on') {
 						var $wrapper = $('<div class="image-wrapper" />')
 						var link = $el.wrap($wrapper).attr('src')
 							.replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
@@ -319,9 +340,9 @@
 
 						resemble(link).onComplete(function (data) {
 							if (data.brightness < 10 && data.alpha > 60 ||
-									data.brightness < 6 && data.alpha > 30 ||
-									data.brightness < 1 ||
-									data.brightness > 87 && data.white > 60) {
+								data.brightness < 6 && data.alpha > 30 ||
+								data.brightness < 1 ||
+								data.brightness > 87 && data.white > 60) {
 								$el.addClass('image-inverted')
 							}
 						})
@@ -341,30 +362,27 @@
 
 			$(document).off('click', '.inverse-toggle')
 				.on('click', '.inverse-toggle', function (e) {
-				e.preventDefault()
-				$(e.target).prev('img').toggleClass('image-inverted')
-			})
-
+					e.preventDefault()
+					$(e.target).prev('img').toggleClass('image-inverted')
+				})
 		},
 		button: {
-			text: 'Night mode',
+			text: 'Invert images',
 			states: {
 				on: function () {
-					this.scriptLoaded()
-					this.documentLoaded()
-				},
-				'on, w/o images': function () {
-					var $inverted = $('.image-inverted')
-					if ($inverted.length) {
-						$inverted.removeClass('image-inverted')
-						return // switching after page loaded TODO `loaded` flag
-					}
-					this.scriptLoaded()
 					this.documentLoaded()
 				},
 				off: function () {
-					$('style#hes_nmstyle').remove()
-				}
+					$('.image-wrapper').each((i, imageWrapper) => {
+						var $imageWrapper = $(imageWrapper);
+						$imageWrapper.replaceWith($imageWrapper.children('img'))
+					})
+					var $inverted = $('.image-inverted')
+					if ($inverted.length) {
+						$inverted.removeClass('image-inverted')
+						return
+					}
+				},
 			}
 		}
 	}
@@ -483,8 +501,7 @@
 	if (citem = localStorage.getItem('hes_config')) {
 		citem = JSON.parse(citem);
 		extend(config, citem);
-	}
-	else updateLSConfig()
+	} else updateLSConfig()
 
 	// initial start
 	Object.keys(modules).forEach(function (key) {
@@ -510,7 +527,7 @@
 	';
 		dropdown.innerHTML = dropdownHTML;
 		var rightMenu = document.querySelector('.main-navbar__section_right');
-		
+
 		if (dropdownUser) {
 			rightMenu.insertBefore(dropdown, dropdownUser)
 		} else {
@@ -518,7 +535,9 @@
 		}
 	})
 
-	window.addEventListener('load', delayedStart.bind(this, function () { return window.jQuery }, function () {
+	window.addEventListener('load', delayedStart.bind(this, function () {
+		return window.jQuery
+	}, function () {
 		var $ = window.jQuery;
 		$(function () {
 
@@ -621,4 +640,5 @@ function delayedStart(expr, callback) {
 	callback()
 }
 
-function _f() {}
+function _f() {
+}

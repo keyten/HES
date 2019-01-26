@@ -84,6 +84,10 @@
 		opacity: 1;
 	}
 
+	.image-wrapper .image-inverted {
+		filter: invert(1)
+	}
+
   .image-wrapper .image-inverted + .inverse-toggle {
 	  color: white;
   }
