@@ -8,7 +8,7 @@
 // @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.6.13
+// @version     2.6.14
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -465,11 +465,7 @@
 			$article.css('margin-top', '-1em')
 			$article.find('.post__text').css('clear', 'both')
 
-			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingtime.js', function () {
-				delayedStart(function () {
-					return window['resemble']
-				}, _process)
-			})
+			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingtime.js', _process)
 		},
 		button: {
 			text: 'Time to read',
