@@ -6,7 +6,7 @@
 // @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.6.20
+// @version     2.6.21
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -47,7 +47,7 @@
 		return pathParts[pathParts.length - 2]
 	}
 
-	const version = '2.6.20';
+	const version = '2.6.21';
 
 	// modules describe
 	const modules = {}
@@ -405,14 +405,15 @@
 			const $base = $(base || '.post__body_full')
 			let $links = $base.find('a');
 			$links = $links.filter(':not([href^="#"]):not([href=""])')
+			const unnamedLinks = (i, link) => $(link).text().startsWith('http')
 			switch (this.config.state) {
 				case 'on':
-					$links = $links.filter((i, link) => $(link).text().length)
+					$links = $links.filter(unnamedLinks)
 				case 'force':
 					$links = $links.filter('[href^="http://habr"], [href^="https://habr"]')
 					break;
 				case 'all':
-					$links = $links.filter((i, link) => $(link).text().length)
+					$links = $links.filter(unnamedLinks)
 				case 'force_all':
 			}
 			$links.not('.preview-processed').each(this.loadLink)
