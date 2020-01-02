@@ -13,7 +13,8 @@
 		display: none !important
 	}
 
-	.hes-hide-img .post .post__body img {
+	.hes-hide-img .post .post__body img,
+	.hes-hide-img .post .post__body img ~ br {
 		display: none !important
 	}
 
