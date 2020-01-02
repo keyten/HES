@@ -8,54 +8,38 @@
 		content: ": " attr(data-state);
 	}
 
-	/* Unchecked links */
-	.html_format.message a.unchecked_link,
-	.html_format.message a.unchecked_link:visited {
-		color: darkred;
-	}
-
 	/* Hiding posts */
-	.posts.hide .post[class*=hide-post] {
+	.hes-hide .post[class*=hide-post] {
 		display: none !important
 	}
 
-	.posts.hide-img .post .content img {
+	.hes-hide-img .post .post_body img {
 		display: none !important
 	}
 
-	.posts.hide-img .post .content .oembed {
+	.hes-hide-img .post .post_body .oembed {
 		display: none !important
 	}
 
-	.posts.hide-partially .post[class*=hide-post] .hubs,
-	.posts.hide-partially .post[class*=hide-post] .content,
-	.posts.hide-partially .post[class*=hide-post] .megapost-head__hubs,
-	.posts.hide-partially .post[class*=hide-post] .article__body {
+	.hes-hide-partially .post[class*=hide-post] .post__hubs,
+	.hes-hide-partially .post[class*=hide-post] .post_body,
+	.hes-hide-partially .post[class*=hide-post] .preview-data__hubs,
+	.hes-hide-partially .post[class*=hide-post] .article__body {
 		display: none !important
 	}
 
-	.posts.hide-partially .post[class*=hide-post] .megapost-head__title,
-	.posts.hide-partially .post[class*=hide-post] .megapost-head__title-link {
+	.hes-hide-partially .post[class*=hide-post] .preview-data__title,
+	.hes-hide-partially .post[class*=hide-post] .preview-data__title-link {
 		font-size: 28px;
 		max-width: none !important
 	}
 
-	.posts.hide-partially .post[class*=hide-post] .megapost-cover__company-blog {
-		top: 0 !important
-	}
-
-	.posts.hide-partially .post[class*=hide-post] .megapost-head__meta {
+	.hes-hide-partially .post[class*=hide-post] .preview-data__meta {
 		margin-bottom: 13px !important
 	}
 
-	.posts.hide-partially .post[class*=hide-post] .megapost-cover__img {
+	.hes-hide-partially .post[class*=hide-post] .megapost-cover__img {
 		height: 180px !important
-	}
-
-	/* mathjax editor button */
-	.g-icon-tex::before {
-		content: 'TeX';
-		font-family: Verdana, sans-serif;
 	}
 
   .image-wrapper {

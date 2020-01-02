@@ -2,13 +2,11 @@
 // @name        HES
 // @namespace   http://github.com/keyten/hes
 // @description Habrahabr Enhancement Suite
-// @include     https://geektimes.com/*
 // @include     https://habr.com/*
-// @match       https://geektimes.com/*
 // @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.6.14
+// @version     2.6.20
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -32,13 +30,33 @@
 
 (function (window) {
 	"use strict"
+	const postsListSelector = '.content-list_posts';
+	const postsSelector = `${postsListSelector} .post`
 
-	var version = '2.5.13';
+	const helper = {
+		get $postsList() {
+			return $(postsListSelector)
+		},
+		get $posts() {
+			return $(postsSelector)
+		}
+	}
+
+	const getName = function (i, el) {
+		const pathParts = el.getAttribute("href").split("/");
+		return pathParts[pathParts.length - 2]
+	}
+
+	const version = '2.6.20';
 
 	// modules describe
-	var modules = {}
+	const modules = {}
 	modules.hidePosts = {
-		config: {state: 'partially'},
+		config: {
+			state: 'partially',
+			onClass: 'hes-hide',
+			partiallyClass: 'hes-hide-partially'
+		},
 		documentLoaded: function () {
 			this.button.states[this.config.state].call(this)
 		},
@@ -46,22 +64,25 @@
 			text: 'Hide posts',
 			states: {
 				on: function () {
-					this.button.states.off();
-					$('.posts').addClass('hide')
+					this.button.states.off.call(this);
+					helper.$postsList.addClass(this.config.onClass)
 				},
 				off: function () {
-					$('.posts').removeClass('hide hide-partially')
+					helper.$postsList.removeClass(`${this.config.onClass} ${this.config.partiallyClass}`)
 				},
 				partially: function () {
-					this.button.states.off();
-					$('.posts').addClass('hide-partially')
+					this.button.states.off.call(this);
+					helper.$postsList.addClass(this.config.partiallyClass)
 				}
 			}
 		}
 	}
 
 	modules.hideImgs = {
-		config: {state: 'off'},
+		config: {
+			state: 'off',
+			onClass: 'hes-hide-img'
+		},
 		documentLoaded: function () {
 			this.button.states[this.config.state].call(this)
 		},
@@ -69,11 +90,11 @@
 			text: 'Hide images',
 			states: {
 				on: function () {
-					this.button.states.off();
-					$('.posts').addClass('hide-img')
+					this.button.states.off.call(this);
+					helper.$postsList.addClass(this.config.onClass)
 				},
 				off: function () {
-					$('.posts').removeClass('hide-img')
+					helper.$postsList.removeClass(this.config.onClass)
 				}
 			}
 		}
@@ -87,28 +108,27 @@
 				'ivansychev',
 				'ragequit',
 				'SLY_G'
-			]
+			],
+			hidePostClass: 'hes-hide-post-a'
 		},
 		documentLoaded: function () {
-			if (!(config.hideAuthors.list || []).length) return;
+			if (!(this.config.list || []).length) return;
 
 			this.updatePosts();
 		},
 		updatePosts: function () {
-			$('.posts .post').removeClass('hide-post-a').filter(function () {
-				var author = trim($('.post-author__link', this).text()).substr(1);
-				return ~config.hideAuthors.list.indexOf(author);
-			}).addClass('hide-post-a');
+			helper.$posts.removeClass(this.config.hidePostClass).filter((i, el) => {
+				const author = $('.user-info__nickname', el).text();
+				return this.config.list.includes(author);
+			}).addClass(this.config.hidePostClass);
 		},
 		button: {
 			text: 'Hide authors',
 			states: {
 				on: function () {
-					var list = (config.hideAuthors.list || []).join(', ');
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (auth == null)
-						return;
-					config.hideAuthors.list = auth.replace(/\s/g, '').split(',');
+					const list = (this.config.list || []).join(', ');
+					const authors = window.prompt('Через запятую (можно пробелы), регистр важен', list);
+					this.config.list = (authors || '').replace(/\s/g, '').split(',');
 					this.updatePosts();
 				}
 			}
@@ -121,85 +141,39 @@
 				'mvideo',
 				'icover',
 				'gearbest'
-			]
-		},
-		getName: function () {
-			return $(this).attr("href").split("/")[4];
+			],
+			hidePostClass: 'hes-hide-post-h'
 		},
 		documentLoaded: function () {
-			if (!(config.hideHubs.list || []).length) return;
+			if (!(this.config.list || []).length) return;
 
 			this.updatePosts();
 		},
 		updatePosts: function () {
-			var module = this;
-
-			$('.posts .post').removeClass('hide-post-h').filter(function () {
-				var hubNames = $('.hub, .megapost-head__hubs .list__item-link', this).map(module.getName).get()
-				return config.hideHubs.list.some(function (hub) {
-					return ~hubNames.indexOf(hub)
-				})
-			}).addClass('hide-post-h');
+			helper.$posts.removeClass(this.config.hidePostClass).filter((i, el) => {
+				const hubNames = $('.hub-link, .preview-data__hubs .list__item-link', el).map(getName).get()
+				return this.config.list.some(hub => hubNames.includes(hub))
+			}).addClass(this.config.hidePostClass);
 		},
 		button: {
 			text: 'Hide hubs',
 			states: {
 				on: function () {
-					var list = (config.hideHubs.list || []).join(', ');
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (!auth)
-						return;
-					config.hideHubs.list = auth.replace(/\s/g, '').split(',');
+					const list = (this.config.list || []).join(', ');
+					const hubs = window.prompt('Через запятую (можно пробелы), регистр важен', list);
+					this.config.list = (hubs || '').replace(/\s/g, '').split(',');
 					this.updatePosts();
 				}
 			}
 		}
 	}
 
-	modules.hideFlows = {
-		config: {
-			list: [
-				'marketing',
-				'management'
-			]
-		},
-		getName: function () {
-			return this.length && $(this).attr("href").split("/")[4];
-		},
-		documentLoaded: function () {
-			if (!(config.hideFlows.list || []).length) return;
-
-			this.updatePosts();
-		},
-		updatePosts: function () {
-			var module = this
-
-			$('.posts .post').removeClass('hide-post-f').filter(function () {
-
-				var flow = module.getName.call($(this).find('.post__flow'))
-				return ~config.hideFlows.list.indexOf(flow);
-			}).addClass('hide-post-f');
-		},
-		button: {
-			text: 'Hide flows',
-			states: {
-				on: function () {
-					var list = (config.hideFlows.list || []).join(', ');
-					var auth = window.prompt('Через запятую (можно пробелы), регистр важен', list);
-					if (auth == null)
-						return;
-					config.hideFlows.list = auth.replace(/\s/g, '').split(',');
-					this.updatePosts();
-				}
-			}
-		}
-	}
-
+	// TODO check native support for old posts like this https://habr.com/ru/post/261803/
 	modules.mathjax = {
 		config: {state: 'on'},
 
 		replaceTeX: function (base) {
-			$(base || '.html_format').find('img[src*="//tex.s2cms.ru/"], img[src*="//latex.codecogs.com/"]').filter(':visible')
+			$(base || '.post__body_full').find('img[src*="//tex.s2cms.ru/"], img[src*="//latex.codecogs.com/"]').filter(':visible')
 				.each(function () {
 
 					var $this = $(this);
@@ -220,7 +194,11 @@
 					// скрываем картинку и выводим TeX
 					$this.hide().after('<span>' + code + '</span>')
 				});
-			$.getScript('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML&locale=ru')
+			// $.getScript('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js?config=TeX-MML-AM_CHTML&locale=ru')
+		},
+
+		scriptLoaded: function () {
+
 		},
 
 		documentLoaded: function () {
@@ -262,32 +240,34 @@
 	}
 
 	modules.nightMode = {
-		config: {state: 'off'},
-		id: 'hes_nmstyle',
+		config: {
+			state: 'off',
+			id: 'hes_nmstyle',
+			styleUri: 'https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/source.css'
+		},
 		scriptLoaded: function () {
-			var module = this;
-			var styles;
-			var s = document.createElement('style');
-			s.id = module.id;
+			let styles;
+			const s = document.createElement('style');
+			s.id = this.config.id;
 			s.setAttribute('media', 'screen');
-			var layout = document.querySelector('.layout')
+			const layout = document.querySelector('.layout')
 			if (layout) {
 				document.body.insertBefore(s, layout)
 			} else {
 				(document.body || document.head).appendChild(s)
 			}
 
-			if (styles = localStorage.getItem(module.id)) {
+			if (styles = localStorage.getItem(this.config.id)) {
 				s.textContent = styles;
 			}
 
-			ajax('https://rawgit.com/WaveCutz/habrahabr.ru_night-mode/master/source.css', function (data) {
-				localStorage.setItem(module.id, data);
+			ajax(this.config.styleUri, data => {
+				localStorage.setItem(this.config.id, data);
 				s.textContent = data;
 			});
 
-			module.nmInterval = setInterval(function () {
-				var layout = document.querySelector('.layout')
+			this.nmInterval = setInterval(function () {
+				const layout = document.querySelector('.layout')
 				if (layout) {
 					document.body.insertBefore(s, layout)
 				}
@@ -307,31 +287,31 @@
 					this.documentLoaded()
 				},
 				off: function () {
-					$('style#hes_nmstyle').remove()
+					$(`style#${this.config.id}`).remove()
 				}
 			}
 		}
 	}
 
 	modules.invertImages = {
-		config: {state: 'off'},
+		config: {state: 'off', scriptUri: 'https://rawgit.com/extempl/Resemble.js/master/resemble.js'},
 		documentLoaded: function () {
 			if (this.nmInterval) {
 				clearInterval(this.nmInterval);
 				this.nmInterval = null;
 			}
 
-			var _process = function () {
+			const _process = function () {
 				$('.comment__message img[src], .post__text img[src]').each(function () {
-					var $el = $(this);
+					const $el = $(this);
 
 					if ($el.is('[src*="latex.codecogs.com"], [src*="tex.s2cms.ru"]')) {
 						return $el.addClass('image-inverted')
 					}
 
 					if (config.invertImages.state === 'on') {
-						var $wrapper = $('<div class="image-wrapper" />')
-						var link = $el.wrap($wrapper).attr('src')
+						const $wrapper = $('<div class="image-wrapper" />')
+						const link = $el.wrap($wrapper).attr('src')
 							.replace('habrastorage', 'hsto').replace(/^\/\//, 'https://')
 
 						$el.parent().css('float', $el.css('float'))
@@ -354,10 +334,8 @@
 				return _process()
 			}
 
-			$.getScript('https://rawgit.com/extempl/Resemble.js/master/resemble.js', function () {
-				delayedStart(function () {
-					return window['resemble']
-				}, _process)
+			$.getScript(this.config.scriptUri, function () {
+				delayedStart(() => (window['resemble']), _process)
 			})
 
 			$(document).off('click', '.inverse-toggle')
@@ -373,16 +351,98 @@
 					this.documentLoaded()
 				},
 				off: function () {
-					$('.image-wrapper').each((i, imageWrapper) => {
-						var $imageWrapper = $(imageWrapper);
+					$('.image-wrapper').each(function (i, imageWrapper) {
+						const $imageWrapper = $(imageWrapper);
 						$imageWrapper.replaceWith($imageWrapper.children('img'))
 					})
-					var $inverted = $('.image-inverted')
+					const $inverted = $('.image-inverted')
 					if ($inverted.length) {
 						$inverted.removeClass('image-inverted')
 						return
 					}
 				},
+			}
+		}
+	}
+
+	modules.liveLinksPreview = {
+		config: {state: 'on'},
+		loadLink: function (i, link) {
+			const $link = $(link)
+			let url;
+			try {
+				url = new URL($link.attr('href'))
+			} catch (e) {
+				console.error($link)
+				return
+			}
+			url.protocol = 'https';
+			if (['geektimes.ru', 'habrahabr.ru'].includes(url.host)) {
+				url.host = 'habr.com'
+			}
+			fetch(url).then(xhr => xhr.text()).then(function (str) {
+				const $html = (new window.DOMParser()).parseFromString(str, "text/html");
+				const $head = $($html.querySelector('head'));
+
+				const title = $head.find('meta[property="og:title"]').attr('content');
+				const description = $head.find('meta[property="og:description"]').attr('content');
+				const image = $head.find('meta[property="og:image"]').first().attr('content');
+
+				// const json = JSON.parse($head.querySelector('script[type="application/ld+json"]').textContent);
+
+				if (title) {
+					$link.attr('data-title', title);
+					$link.attr('data-description', description);
+					$link.attr('data-image', image);
+
+					$link.text(title);
+				}
+
+				$link.addClass('preview-processed')
+			})
+		},
+		loadLinks: function (base, filter = () => true) {
+			const $base = $(base || '.post__body_full')
+			let $links = $base.find('a');
+			$links = $links.filter(':not([href^="#"]):not([href=""])')
+			switch (this.config.state) {
+				case 'on':
+					$links = $links.filter((i, link) => $(link).text().length)
+				case 'force':
+					$links = $links.filter('[href^="http://habr"], [href^="https://habr"]')
+					break;
+				case 'all':
+					$links = $links.filter((i, link) => $(link).text().length)
+				case 'force_all':
+			}
+			$links.not('.preview-processed').each(this.loadLink)
+		},
+		previewLink: function (link) {
+			// TODO popup with preview on hover - add as a separated module
+		},
+		documentLoaded: function () {
+			this.loadLinks();
+			this.loadLinks('.comment_message');
+		},
+		commentsRealoded: function () {
+			this.loadLinks('.comment_message');
+		},
+		button: {
+			text: 'Preview Links',
+			states: {
+				on: function () { // заменять текст на title если текст не установлен (ссылка)
+					this.documentLoaded()
+				},
+				force: function () {// заменять любой текст на title
+					this.documentLoaded()
+				},
+				all: function () { // для всех ссылок
+					this.documentLoaded()
+				},
+				force_all: function () {
+					this.documentLoaded()
+				},
+				off: null
 			}
 		}
 	}
@@ -403,61 +463,13 @@
 		}
 	}
 
-	modules.replaceLinks = {
-		config: {state: 'on'},
-		// regExp: https://gist.github.com/dperini/729294 TODO ignore closing bracket outside of RegExp if there was not open bracket
-		linkReg: /((?:(?:https?|ftp):\/\/)(?:(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[\/?#]\S*)?[^),;.\s]?)/gi,
-		template: '<a href="$1" target="_blank" class="unchecked_link" title="Непроверенная ссылка">$1</a>',
-		replaceLinks: function (comments) {
-			var module = this;
-			$(comments).each(function (i, comment) {
-				var depth = 5 // максимальная глубина вложенности
-				var nodeList = []
-				var _seekAndReplace = function (node, depth) {
-					if (!--depth) return;
-					Array.prototype.forEach.call(node.childNodes, function (node) {
-						if (node.nodeType == 3) { // если текст - искать/заменять
-							if (!$(node).parents('a, code').length) { // если среди родителей нет ссылки и кода
-								if ((node.nodeValue.match(module.linkReg) || []).length) {
-									nodeList.push(node)
-								}
-							}
-						} else if (node.nodeType == 1) { // если элемент - рекурсивно обходим текстовые ноды
-							_seekAndReplace(node, depth)
-						}
-					})
-				}
-				_seekAndReplace(comment, depth)
-
-				nodeList.forEach(function (node) {
-					$(node).replaceWith(node.nodeValue.replace(module.linkReg, module.template))
-				})
-			})
-		},
-		documentLoaded: function () {
-			this.replaceLinks('.comment-item + .message')
-		},
-		commentsReloaded: function () {
-			this.replaceLinks('.comment-item.is_new + .message')
-		},
-		button: {
-			text: 'Clickable links',
-			states: {
-				on: function () {
-					this.documentLoaded()
-				},
-				off: null
-			}
-		}
-	}
-
 	modules.timeForReading = {
-		config: {state: 'on'},
+		config: {state: 'on', scriptUri: 'https://rawgit.com/michael-lynch/reading-time/master/src/readingtime.js'},
 		documentLoaded: function () {
 
-			var $article = $('.post__body_full')
+			const $article = $('.post__body_full')
 
-			var _process = function () {
+			const _process = function () {
 				$article.readingTime({lang: 'ru'})
 			}
 
@@ -465,7 +477,7 @@
 			$article.css('margin-top', '-1em')
 			$article.find('.post__text').css('clear', 'both')
 
-			$.getScript('https://rawgit.com/michael-lynch/reading-time/master/src/readingtime.js', _process)
+			$.getScript(this.config.scriptUri, _process)
 		},
 		button: {
 			text: 'Time to read',
@@ -478,42 +490,41 @@
 		}
 	}
 
-
 	//======================================================================================
 	// main config
-	var config = {}
+	const config = {}
 
-	Object.keys(modules).forEach(function (key) {
+	Object.keys(modules).forEach(key => {
 		config[key] = modules[key].config;
 	});
 
 	// main logic
 
 	// подгружаем настройки из localStorage
-	var updateLSConfig = function () {
+	const updateLSConfig = function () {
 		return localStorage.setItem('hes_config', JSON.stringify(config));
 	}
-	var citem;
+	let citem;
 	if (citem = localStorage.getItem('hes_config')) {
 		citem = JSON.parse(citem);
 		extend(config, citem);
 	} else updateLSConfig()
 
 	// initial start
-	Object.keys(modules).forEach(function (key) {
-		var module = modules[key];
-		if (~['on', 'partially'].indexOf(config[key].state)) {
+	Object.keys(modules).forEach(key => {
+		const module = modules[key];
+		if (['on', 'partially'].includes(config[key].state)) {
 			(module.scriptLoaded || _f).call(module)
 		}
 	})
 
 	delayedStart(function () {
 		return document.querySelectorAll('.main-navbar__section_right .dropdown_user, .main-navbar__section_right .btn_navbar_registration').length;
-	}, function () {
-		var dropdownUser = document.querySelector('.main-navbar__section_right .dropdown_user');
-		var dropdown = document.createElement('div');
+	}, () => {
+		const dropdownUser = document.querySelector('.main-navbar__section_right .dropdown_user');
+		const dropdown = document.createElement('div');
 		dropdown.className = 'dropdown dropdown_hes';
-		var dropdownHTML = '\
+		const dropdownHTML = '\
 		<button type="button" class="btn btn_x-large btn_navbar_hes-dropdown" \
 				data-toggle="dropdown" aria-haspopup="true" role="button" \
 				aria-expanded="false" tabindex="0" title="Version: ' + version + '">HES</button> \
@@ -522,7 +533,7 @@
 		</div> \
 	';
 		dropdown.innerHTML = dropdownHTML;
-		var rightMenu = document.querySelector('.main-navbar__section_right');
+		const rightMenu = document.querySelector('.main-navbar__section_right');
 
 		if (dropdownUser) {
 			rightMenu.insertBefore(dropdown, dropdownUser)
@@ -534,21 +545,21 @@
 	window.addEventListener('load', delayedStart.bind(this, function () {
 		return window.jQuery
 	}, function () {
-		var $ = window.jQuery;
+		const $ = window.jQuery;
 		$(function () {
 
 			// load main styles
 			ajax('https://rawgit.com/keyten/HES/master/style.css', function (data) {
-				var $s = $('<style id="hes_mainstyles"></style>')
+				const $s = $('<style id="hes_mainstyles"></style>')
 				$s.text(data).appendTo('head');
 			});
 
-			var $menu = $('.n-dropdown-menu_hes');
+			const $menu = $('.n-dropdown-menu_hes');
 
 			// main
 
 			$('#xpanel').children('.refresh').click(function () {
-				var $el = $(this)
+				const $el = $(this)
 
 				setTimeout(delayedStart.bind(this, function () {
 					return !$el.hasClass('loading')
@@ -558,11 +569,11 @@
 			})
 
 			Object.keys(modules).forEach(function (key) {
-				var module = modules[key];
-				var states = Object.keys(module.button.states)
+				const module = modules[key];
+				const states = Object.keys(module.button.states)
 
-				var state = config[key].state || states[0];
-				if (~['on', 'partially'].indexOf(state)) {
+				const state = config[key].state || states[0];
+				if (state !== 'off') {
 					// document loaded start
 					(module.documentLoaded || _f).call(module);
 
@@ -574,17 +585,18 @@
 
 				if (!(states || []).length) return; // There is no buttons for module
 
-				var $menuItem = $('<li class="n-dropdown-menu__item" />');
-				var $button = $('<a href="#" class="n-dropdown-menu__item-link">' + module.button.text + '</a>');
+				const $menuItem = $('<li class="n-dropdown-menu__item" />');
+				const $button = $('<a href="#" class="n-dropdown-menu__item-link">' + module.button.text + '</a>');
 				$menuItem.append($button);
 				if (states.length > 1) $button.attr('data-state', state);
 
 				$button.click(function () {
-					var stateIndex = states.indexOf(config[key].state);
-					var newState = states[stateIndex + 1] || states[0];
+					const stateIndex = states.indexOf(config[key].state);
+					const newState = states[stateIndex + 1] || states[0];
 					if (states.length > 1) $(this).attr('data-state', newState);
 					config[key].state = newState;
-					(module.button.states[newState] && module.button.states[newState].bind(module) || _f)()
+					const stateMethod = module.button.states[newState];
+					(stateMethod && stateMethod.bind(module) || _f)()
 					updateLSConfig();
 					if (module.commentsReloaded) {
 						$(document)[newState]('comments.reloaded', module.commentsReloaded.bind(module))
@@ -600,7 +612,7 @@
 // Utils
 
 function ajax(url, callback) {
-	var xhttp = new XMLHttpRequest();
+	const xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function () {
 		if (xhttp.readyState == 4 && xhttp.status == 200) {
 			callback(xhttp.responseText);
@@ -610,13 +622,9 @@ function ajax(url, callback) {
 	xhttp.send();
 }
 
-function trim(str) {
-	return (str || '').replace(/^\s+|\s+$/g, '')
-}
-
 // http://andrewdupont.net/2009/08/28/deep-extending-objects-in-javascript/
 function extend(destination, source) {
-	for (var property in source) {
+	for (const property in source) {
 		if (!source.hasOwnProperty(property)) continue;
 		if (source[property] && source[property].constructor &&
 			source[property].constructor === Object) {
