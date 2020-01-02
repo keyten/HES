@@ -13,16 +13,16 @@
 		display: none !important
 	}
 
-	.hes-hide-img .post .post_body img {
+	.hes-hide-img .post .post__body img {
 		display: none !important
 	}
 
-	.hes-hide-img .post .post_body .oembed {
+	.hes-hide-img .post .post__body .oembed {
 		display: none !important
 	}
 
 	.hes-hide-partially .post[class*=hide-post] .post__hubs,
-	.hes-hide-partially .post[class*=hide-post] .post_body,
+	.hes-hide-partially .post[class*=hide-post] .post__text,
 	.hes-hide-partially .post[class*=hide-post] .preview-data__hubs,
 	.hes-hide-partially .post[class*=hide-post] .article__body {
 		display: none !important
