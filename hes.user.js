@@ -6,7 +6,7 @@
 // @match       https://habr.com/*
 // @exclude     %exclude%
 // @author      HabraCommunity
-// @version     2.6.21
+// @version     2.6.22
 // @grant       none
 // @run-at      document-start
 // ==/UserScript==
@@ -272,6 +272,7 @@
 					document.body.insertBefore(s, layout)
 				}
 			}, 200)
+			setTimeout(this.documentLoaded.bind(this), 2000)
 		},
 		documentLoaded: function () {
 			if (this.nmInterval) {
